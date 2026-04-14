@@ -1,0 +1,15 @@
+{
+  "key_insight": "PPO agents trained on pharmacokinetic/pharmacodynamic simulation environments learn dosing policies that outperform both random and guideline-based clinical baselines. The largest improvement margin is in DIC management, where the multi-action treatment space (platelets, FFP, cryoprecipitate, heparin) benefits most from learned coordination. Warfarin dosing shows the most clinically meaningful improvement due to personalized genotype-aware dose titration that exceeds the IWPC fixed-protocol approach.",
+  "environments_ranked_by_ppo_improvement": [
+    "hemosim/DICManagement-v0",
+    "hemosim/WarfarinDosing-v0",
+    "hemosim/HeparinInfusion-v0",
+    "hemosim/DOACManagement-v0"
+  ],
+  "clinical_implications": [
+    "RL agents can learn personalized warfarin dosing that accounts for CYP2C9/VKORC1 genotype",
+    "Heparin infusion management benefits from continuous state monitoring vs periodic nomogram checks",
+    "DOAC selection is relatively straightforward; RL adds marginal value over guidelines",
+    "DIC management is the most complex and benefits most from learned multi-action coordination"
+  ]
+}

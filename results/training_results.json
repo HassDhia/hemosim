@@ -1,0 +1,122 @@
+{
+  "environments": {
+    "hemosim/WarfarinDosing-v0": {
+      "clinical_baseline": {
+        "mean_reward": -17.0,
+        "std_reward": 0.0,
+        "episodes": 100,
+        "therapeutic_rate": 0.0,
+        "min_reward": -17.0,
+        "max_reward": -17.0
+      },
+      "random": {
+        "mean_reward": -17.0,
+        "std_reward": 0.0,
+        "episodes": 100,
+        "therapeutic_rate": 0.0,
+        "min_reward": -17.0,
+        "max_reward": -17.0
+      },
+      "ppo": {
+        "mean_reward": -16.15,
+        "std_reward": 0.0,
+        "episodes": 100,
+        "therapeutic_rate": 0.0,
+        "min_reward": -16.15,
+        "max_reward": -16.15
+      }
+    },
+    "hemosim/HeparinInfusion-v0": {
+      "clinical_baseline": {
+        "mean_reward": -23.79253274122941,
+        "std_reward": 0.32145304100732586,
+        "episodes": 100,
+        "therapeutic_rate": 0.0,
+        "min_reward": -23.949281861220385,
+        "max_reward": -22.917586717719097
+      },
+      "random": {
+        "mean_reward": -24.97889624671088,
+        "std_reward": 2.8467478236214903,
+        "episodes": 100,
+        "therapeutic_rate": 0.06766917293233082,
+        "min_reward": -37.851745568556865,
+        "max_reward": -22.022126185697353
+      },
+      "ppo": {
+        "mean_reward": -22.2469970525235,
+        "std_reward": 0.273235084856227,
+        "episodes": 100,
+        "therapeutic_rate": 0.0,
+        "min_reward": -22.793467222235954,
+        "max_reward": -21.83714442523916
+      }
+    },
+    "hemosim/DOACManagement-v0": {
+      "clinical_baseline": {
+        "mean_reward": 12.98,
+        "std_reward": 5.17779876009101,
+        "episodes": 100,
+        "therapeutic_rate": 0.0,
+        "min_reward": -8.5,
+        "max_reward": 18.0
+      },
+      "random": {
+        "mean_reward": -25.235,
+        "std_reward": 8.721082214954748,
+        "episodes": 100,
+        "therapeutic_rate": 0.0,
+        "min_reward": -44.5,
+        "max_reward": -4.0
+      },
+      "ppo": {
+        "mean_reward": 23.7955,
+        "std_reward": 4.401128946077359,
+        "episodes": 100,
+        "therapeutic_rate": 0.0,
+        "min_reward": 14.993242107845283,
+        "max_reward": 30.39719341911604
+      }
+    },
+    "hemosim/DICManagement-v0": {
+      "clinical_baseline": {
+        "mean_reward": -112.2395,
+        "std_reward": 31.776150093269635,
+        "episodes": 100,
+        "therapeutic_rate": 0.0,
+        "min_reward": -232.24999999999997,
+        "max_reward": -49.2
+      },
+      "random": {
+        "mean_reward": -129.44449999999998,
+        "std_reward": 28.028738729204353,
+        "episodes": 100,
+        "therapeutic_rate": 0.0,
+        "min_reward": -303.40000000000003,
+        "max_reward": -87.79999999999998
+      },
+      "ppo": {
+        "mean_reward": -101.466025,
+        "std_reward": 27.00972757927919,
+        "episodes": 100,
+        "therapeutic_rate": 0.0,
+        "min_reward": -155.48548015855837,
+        "max_reward": -60.951433631081215
+      }
+    }
+  },
+  "training_config": {
+    "seed": 42,
+    "total_timesteps_per_env": {
+      "hemosim/WarfarinDosing-v0": 500000,
+      "hemosim/HeparinInfusion-v0": 300000,
+      "hemosim/DOACManagement-v0": 300000,
+      "hemosim/DICManagement-v0": 500000
+    }
+  },
+  "metadata": {
+    "package_version": "0.1.0",
+    "timestamp": "2026-04-14T10:29:33.090281+00:00",
+    "test_count": 142
+  }
+}

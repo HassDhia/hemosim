@@ -1,0 +1,69 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hemosim"
+version = "0.1.0"
+description = "Reinforcement learning Gymnasium environments for hemostasis and anticoagulation management"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    { name = "Hass Dhia", email = "partners@smarttechinvest.com" },
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.11",
+    "gymnasium>=0.29",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.1",
+    "mypy>=1.0",
+]
+train = [
+    "stable-baselines3>=2.0",
+    "torch>=2.0",
+]
+all = [
+    "hemosim[dev,train]",
+]
+
+[project.scripts]
+hemosim-train = "hemosim.agents.ppo:main"
+hemosim-benchmark = "hemosim.benchmarks.runner:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/hemosim"]
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "results/",
+    "paper/",
+    ".venv/",
+    ".claude/",
+    "*.pt",
+    "*.zip",
+]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 99
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
