@@ -109,6 +109,17 @@ class WarfarinPKPD:
         # Transit compartment rate for INR delay (~36-72h delay)
         self.k_transit = 0.04  # 1/h (~25h mean transit time per compartment)
 
+        # Vitamin-K-cycle inhibition gain and S-warfarin potency multiplier.
+        # These are exposed for calibration (see hemosim.validation) — v0.1
+        # used fixed values 0.04 and 3.0 respectively, but matching the
+        # Hamberg / IWPC steady-state INR targets requires raising the
+        # inhibition gain so that saturating drug drives VK-cycle activity
+        # well below 0.5 (INR > 2.0). Keeping the default = 0.04 for
+        # backwards compatibility; fitted values live in the calibration
+        # report at `results/calibration_report.md`.
+        self.vk_inhibition_gain = 0.04     # 1/h
+        self.s_warfarin_potency = 3.0      # dimensionless
+
         # State vector
         self.state = np.zeros(self.N_STATES)
         self.state[4] = 1.0  # vitamin K cycle fully active
@@ -175,14 +186,18 @@ class WarfarinPKPD:
 
             # PD: Warfarin inhibits vitamin K cycle
             # Combined S+R effect (S-warfarin is ~3-5x more potent)
-            effective_conc = s_conc_central * 3.0 + r_conc_central
+            effective_conc = s_conc_central * self.s_warfarin_potency + r_conc_central
             inhibition = (
                 self.emax * effective_conc ** self.hill
                 / (self.ec50_adjusted ** self.hill + effective_conc ** self.hill)
             )
 
-            # Vitamin K cycle: inhibited by warfarin, recovers naturally
-            dvk = 0.04 * (1.0 - vk_cycle) - 0.04 * inhibition * vk_cycle
+            # Vitamin K cycle: inhibited by warfarin, recovers naturally.
+            # Recovery rate is fixed at 0.04/h (vitamin K regeneration is
+            # roughly constant); inhibition gain is fittable because it
+            # controls the achievable steady-state VK suppression (and
+            # therefore the INR ceiling) — see validation/published_calibration.
+            dvk = 0.04 * (1.0 - vk_cycle) - self.vk_inhibition_gain * inhibition * vk_cycle
 
             # INR response through transit compartments (delayed response)
             # INR increases as vitamin K cycle is suppressed
