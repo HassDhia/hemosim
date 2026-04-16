@@ -7,6 +7,12 @@ from hemosim.agents.baselines import (
     RandomBaseline,
     WarfarinClinicalBaseline,
 )
+from hemosim.agents.baselines_extended import (
+    HeparinAntiXaBaseline,
+    NematiDQN2016Baseline,
+    WarfarinGageBaseline,
+    WarfarinOrdinalBaseline,
+)
 
 __all__ = [
     "WarfarinClinicalBaseline",
@@ -14,4 +20,8 @@ __all__ = [
     "DOACGuidelineBaseline",
     "DICProtocolBaseline",
     "RandomBaseline",
+    "NematiDQN2016Baseline",
+    "HeparinAntiXaBaseline",
+    "WarfarinGageBaseline",
+    "WarfarinOrdinalBaseline",
 ]

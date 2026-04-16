@@ -1,0 +1,351 @@
+{
+  "benchmarks": {
+    "aristotle_apix_bleed": {
+      "ci": [
+        1.89,
+        2.4
+      ],
+      "citation": "Granger CB, Alexander JH, McMurray JJV, et al. Apixaban versus warfarin in patients with atrial fibrillation. N Engl J Med. 2011;365(11):981-992. doi:10.1056/NEJMoa1107039",
+      "endpoint": "Major bleeding, apixaban 5 mg BID",
+      "key": "aristotle_apix_bleed",
+      "notes": "",
+      "trial": "ARISTOTLE 2011 (NEJM)",
+      "units": "%/yr",
+      "value": 2.13
+    },
+    "aristotle_apix_stroke": {
+      "ci": [
+        1.05,
+        1.53
+      ],
+      "citation": "Granger CB, Alexander JH, McMurray JJV, et al. Apixaban versus warfarin in patients with atrial fibrillation. N Engl J Med. 2011;365(11):981-992. doi:10.1056/NEJMoa1107039",
+      "endpoint": "Stroke/systemic embolism, apixaban 5 mg BID",
+      "key": "aristotle_apix_stroke",
+      "notes": "",
+      "trial": "ARISTOTLE 2011 (NEJM)",
+      "units": "%/yr",
+      "value": 1.27
+    },
+    "hamberg_ss_inr_wildtype": {
+      "ci": [
+        2.0,
+        3.0
+      ],
+      "citation": "Hamberg AK, Dahl ML, Barber TM, et al. A PK-PD model for predicting the impact of age, CYP2C9, and VKORC1 genotype on individualization of warfarin therapy. Clin Pharmacol Ther. 2007;81(4):529-538. doi:10.1038/sj.clpt.6100084",
+      "endpoint": "Steady-state INR in CYP2C9 *1/*1, VKORC1 GG, age 65, 75 kg on 5 mg/day",
+      "key": "hamberg_ss_inr_wildtype",
+      "notes": "Derived from Hamberg PK-PD simulation: wild-type genotype at age 65, 75 kg on 5 mg/day reaches mid-therapeutic INR.",
+      "trial": "Hamberg 2007 (CPT)",
+      "units": "INR",
+      "value": 2.5
+    },
+    "hirsh_therapeutic_conc_mid": {
+      "ci": [
+        0.2,
+        0.4
+      ],
+      "citation": "Hirsh J, Warkentin TE, Shaughnessy SG, et al. Heparin and low-molecular-weight heparin: mechanisms of action, pharmacokinetics, dosing, monitoring, efficacy, and safety. Chest. 2001;119(1 Suppl):64S-94S. doi:10.1378/chest.119.1_suppl.64s",
+      "endpoint": "Heparin plasma level at therapeutic aPTT (midpoint)",
+      "key": "hirsh_therapeutic_conc_mid",
+      "notes": "Therapeutic range 0.2-0.4 U/mL; midpoint used for fit.",
+      "trial": "Hirsh 2001 (Chest)",
+      "units": "U/mL",
+      "value": 0.3
+    },
+    "iwpc_days_to_therapeutic": {
+      "ci": [
+        5.0,
+        10.0
+      ],
+      "citation": "The International Warfarin Pharmacogenetics Consortium. Estimation of the warfarin dose with clinical and pharmacogenetic data. N Engl J Med. 2009;360(8):753-764. doi:10.1056/NEJMoa0809329",
+      "endpoint": "Days until INR enters 2.0-3.0 on appropriate dose",
+      "key": "iwpc_days_to_therapeutic",
+      "notes": "IWPC and standard-of-care literature: therapeutic INR is generally achieved within 5-10 days on the IWPC-predicted dose; 7 days used as the point target.",
+      "trial": "IWPC 2009 (NEJM)",
+      "units": "days",
+      "value": 7.0
+    },
+    "iwpc_mean_maintenance_dose": {
+      "ci": [
+        2.4,
+        8.0
+      ],
+      "citation": "The International Warfarin Pharmacogenetics Consortium. Estimation of the warfarin dose with clinical and pharmacogenetic data. N Engl J Med. 2009;360(8):753-764. doi:10.1056/NEJMoa0809329",
+      "endpoint": "Mean stable maintenance dose (N=4043)",
+      "key": "iwpc_mean_maintenance_dose",
+      "notes": "Published as 5.2 \u00b1 2.8 mg/day; CI here treats \u00b1SD as a plausible interval rather than a formal 95% CI.",
+      "trial": "IWPC 2009 (NEJM)",
+      "units": "mg/day",
+      "value": 5.2
+    },
+    "nemati_ttr_standard": {
+      "ci": null,
+      "citation": "Nemati S, Ghassemi MM, Clifford GD. Optimal medication dosing from suboptimal clinical examples: A deep reinforcement learning approach. Conf Proc IEEE Eng Med Biol Soc. 2016;2016:2978-2981. doi:10.1109/EMBC.2016.7591355",
+      "endpoint": "TTR on standard Raschke nomogram in MIMIC-II cohort",
+      "key": "nemati_ttr_standard",
+      "notes": "Approximate TTR at steady state on the physician-applied Raschke nomogram, reported as the baseline that the DQN policy improved upon.",
+      "trial": "Nemati 2016 (EMBC)",
+      "units": "fraction",
+      "value": 0.55
+    },
+    "raschke_aptt_6h": {
+      "ci": [
+        60.0,
+        100.0
+      ],
+      "citation": "Raschke RA, Reilly BM, Guidry JR, et al. The weight-based heparin dosing nomogram compared with a standard care nomogram. A randomized controlled trial. Ann Intern Med. 1993;119(9):874-881. doi:10.7326/0003-4819-119-9-199311010-00002",
+      "endpoint": "Mean aPTT at 6h after 80 U/kg bolus + 18 U/kg/hr",
+      "key": "raschke_aptt_6h",
+      "notes": "Therapeutic aPTT range 60-100s; reported cohort mean ~75s at 6 hours on weight-based nomogram.",
+      "trial": "Raschke 1993 (Ann Intern Med)",
+      "units": "seconds",
+      "value": 75.0
+    },
+    "rely_dabi_bleed": {
+      "ci": [
+        2.8,
+        3.46
+      ],
+      "citation": "Connolly SJ, Ezekowitz MD, Yusuf S, et al. Dabigatran versus warfarin in patients with atrial fibrillation. N Engl J Med. 2009;361(12):1139-1151. doi:10.1056/NEJMoa0905561",
+      "endpoint": "Major bleeding, dabigatran 150 mg BID",
+      "key": "rely_dabi_bleed",
+      "notes": "",
+      "trial": "RE-LY 2009 (NEJM)",
+      "units": "%/yr",
+      "value": 3.11
+    },
+    "rely_dabi_stroke": {
+      "ci": [
+        0.92,
+        1.33
+      ],
+      "citation": "Connolly SJ, Ezekowitz MD, Yusuf S, et al. Dabigatran versus warfarin in patients with atrial fibrillation. N Engl J Med. 2009;361(12):1139-1151. doi:10.1056/NEJMoa0905561",
+      "endpoint": "Stroke/systemic embolism, dabigatran 150 mg BID",
+      "key": "rely_dabi_stroke",
+      "notes": "",
+      "trial": "RE-LY 2009 (NEJM)",
+      "units": "%/yr",
+      "value": 1.11
+    },
+    "rocket_riva_bleed": {
+      "ci": [
+        3.27,
+        3.96
+      ],
+      "citation": "Patel MR, Mahaffey KW, Garg J, et al. Rivaroxaban versus warfarin in nonvalvular atrial fibrillation. N Engl J Med. 2011;365(10):883-891. doi:10.1056/NEJMoa1009638",
+      "endpoint": "Major bleeding, rivaroxaban 20 mg daily",
+      "key": "rocket_riva_bleed",
+      "notes": "",
+      "trial": "ROCKET-AF 2011 (NEJM)",
+      "units": "%/yr",
+      "value": 3.6
+    },
+    "rocket_riva_stroke": {
+      "ci": [
+        1.45,
+        2.0
+      ],
+      "citation": "Patel MR, Mahaffey KW, Garg J, et al. Rivaroxaban versus warfarin in nonvalvular atrial fibrillation. N Engl J Med. 2011;365(10):883-891. doi:10.1056/NEJMoa1009638",
+      "endpoint": "Stroke/systemic embolism, rivaroxaban 20 mg daily",
+      "key": "rocket_riva_stroke",
+      "notes": "",
+      "trial": "ROCKET-AF 2011 (NEJM)",
+      "units": "%/yr",
+      "value": 1.7
+    }
+  },
+  "cli_args": {
+    "episodes": 500,
+    "heparin_iter": 600,
+    "seed": 42,
+    "warfarin_iter": 800
+  },
+  "doac_validation": {
+    "drugs": {
+      "apixaban": {
+        "bleed_events": 11,
+        "bleed_rate_per_100py": 2.2492997198879547,
+        "bleed_residual": 0.11929971988795485,
+        "bleed_within_ci": true,
+        "ci_bleed": [
+          1.89,
+          2.4
+        ],
+        "ci_stroke": [
+          1.05,
+          1.53
+        ],
+        "citation_bleed": "Granger CB, Alexander JH, McMurray JJV, et al. Apixaban versus warfarin in patients with atrial fibrillation. N Engl J Med. 2011;365(11):981-992. doi:10.1056/NEJMoa1107039",
+        "citation_stroke": "Granger CB, Alexander JH, McMurray JJV, et al. Apixaban versus warfarin in patients with atrial fibrillation. N Engl J Med. 2011;365(11):981-992. doi:10.1056/NEJMoa1107039",
+        "expected_bleed": 2.13,
+        "expected_stroke": 1.27,
+        "patient_years": 489.041095890411,
+        "stroke_events": 8,
+        "stroke_rate_per_100py": 1.6358543417366946,
+        "stroke_residual": 0.3658543417366946,
+        "stroke_within_ci": false
+      },
+      "dabigatran": {
+        "bleed_events": 16,
+        "bleed_rate_per_100py": 3.266767354701572,
+        "bleed_residual": 0.156767354701572,
+        "bleed_within_ci": true,
+        "ci_bleed": [
+          2.8,
+          3.46
+        ],
+        "ci_stroke": [
+          0.92,
+          1.33
+        ],
+        "citation_bleed": "Connolly SJ, Ezekowitz MD, Yusuf S, et al. Dabigatran versus warfarin in patients with atrial fibrillation. N Engl J Med. 2009;361(12):1139-1151. doi:10.1056/NEJMoa0905561",
+        "citation_stroke": "Connolly SJ, Ezekowitz MD, Yusuf S, et al. Dabigatran versus warfarin in patients with atrial fibrillation. N Engl J Med. 2009;361(12):1139-1151. doi:10.1056/NEJMoa0905561",
+        "expected_bleed": 3.11,
+        "expected_stroke": 1.11,
+        "patient_years": 489.7808219178082,
+        "stroke_events": 7,
+        "stroke_rate_per_100py": 1.4292107176819377,
+        "stroke_residual": 0.31921071768193765,
+        "stroke_within_ci": false
+      },
+      "rivaroxaban": {
+        "bleed_events": 19,
+        "bleed_rate_per_100py": 3.922067639407307,
+        "bleed_residual": 0.32206763940730676,
+        "bleed_within_ci": true,
+        "ci_bleed": [
+          3.27,
+          3.96
+        ],
+        "ci_stroke": [
+          1.45,
+          2.0
+        ],
+        "citation_bleed": "Patel MR, Mahaffey KW, Garg J, et al. Rivaroxaban versus warfarin in nonvalvular atrial fibrillation. N Engl J Med. 2011;365(10):883-891. doi:10.1056/NEJMoa1009638",
+        "citation_stroke": "Patel MR, Mahaffey KW, Garg J, et al. Rivaroxaban versus warfarin in nonvalvular atrial fibrillation. N Engl J Med. 2011;365(10):883-891. doi:10.1056/NEJMoa1009638",
+        "expected_bleed": 3.6,
+        "expected_stroke": 1.7,
+        "patient_years": 484.43835616438355,
+        "stroke_events": 15,
+        "stroke_rate_per_100py": 3.0963691890057685,
+        "stroke_residual": 1.3963691890057686,
+        "stroke_within_ci": false
+      }
+    },
+    "n_episodes_per_drug": 500,
+    "seed": 42
+  },
+  "heparin_fit": {
+    "benchmark_keys": [
+      "raschke_aptt_6h",
+      "hirsh_therapeutic_conc_mid",
+      "nemati_ttr_standard"
+    ],
+    "converged": true,
+    "fitted_params": {
+      "aptt_alpha": 1.7079421961767967,
+      "aptt_c_ref": 0.2981716429908722,
+      "km": 0.15112585844720405,
+      "vmax": 2761.3709574179748
+    },
+    "initial_params": {
+      "aptt_alpha": 2.5,
+      "aptt_c_ref": 0.15,
+      "km": 0.4,
+      "vmax": 400.0
+    },
+    "message": "Optimization terminated successfully.",
+    "model": "heparin",
+    "n_benchmarks": 3,
+    "n_iterations": 178,
+    "residuals": [
+      {
+        "endpoint": "Mean aPTT at 6h after 80 U/kg bolus + 18 U/kg/hr",
+        "expected": 75.0,
+        "key": "raschke_aptt_6h",
+        "observed": 75.00000009667703,
+        "residual": 9.667702727256255e-08,
+        "trial": "Raschke 1993 (Ann Intern Med)",
+        "units": "seconds"
+      },
+      {
+        "endpoint": "Heparin plasma level at therapeutic aPTT (midpoint)",
+        "expected": 0.3,
+        "key": "hirsh_therapeutic_conc_mid",
+        "observed": 0.300000000008314,
+        "residual": 8.314016142207947e-12,
+        "trial": "Hirsh 2001 (Chest)",
+        "units": "U/mL"
+      },
+      {
+        "endpoint": "TTR on standard Raschke nomogram in MIMIC-II cohort",
+        "expected": 0.55,
+        "key": "nemati_ttr_standard",
+        "observed": 0.375,
+        "residual": -0.17500000000000004,
+        "trial": "Nemati 2016 (EMBC)",
+        "units": "fraction"
+      }
+    ],
+    "rmse": 0.18370235837851734,
+    "seed": 42
+  },
+  "schema_version": "1",
+  "warfarin_fit": {
+    "benchmark_keys": [
+      "iwpc_mean_maintenance_dose",
+      "iwpc_days_to_therapeutic",
+      "hamberg_ss_inr_wildtype"
+    ],
+    "converged": true,
+    "fitted_params": {
+      "ec50": 1.1063735502832523,
+      "hill": 1.649888838498954,
+      "s_warfarin_potency": 2.473651805059836,
+      "vk_inhibition_gain": 0.06519048286610529,
+      "vkorc1_gg_factor": 0.6154912522236529
+    },
+    "initial_params": {
+      "ec50": 1.5,
+      "hill": 1.3,
+      "s_warfarin_potency": 3.0,
+      "vk_inhibition_gain": 0.04,
+      "vkorc1_gg_factor": 1.0
+    },
+    "message": "Optimization terminated successfully.",
+    "model": "warfarin",
+    "n_benchmarks": 3,
+    "n_iterations": 190,
+    "residuals": [
+      {
+        "endpoint": "Mean stable maintenance dose (N=4043) (simulated INR @ mean dose vs therapeutic midpoint 2.5)",
+        "expected": 2.5,
+        "key": "iwpc_mean_maintenance_dose",
+        "observed": 2.503810226770917,
+        "residual": 0.0038102267709168025,
+        "trial": "IWPC 2009 (NEJM)",
+        "units": "INR"
+      },
+      {
+        "endpoint": "Days until INR enters 2.0-3.0 on appropriate dose",
+        "expected": 7.0,
+        "key": "iwpc_days_to_therapeutic",
+        "observed": 7.0,
+        "residual": 0.0,
+        "trial": "IWPC 2009 (NEJM)",
+        "units": "days"
+      },
+      {
+        "endpoint": "Steady-state INR in CYP2C9 *1/*1, VKORC1 GG, age 65, 75 kg on 5 mg/day",
+        "expected": 2.5,
+        "key": "hamberg_ss_inr_wildtype",
+        "observed": 2.4960887976648247,
+        "residual": -0.003911202335175279,
+        "trial": "Hamberg 2007 (CPT)",
+        "units": "INR"
+      }
+    ],
+    "rmse": 0.0012610119058912783,
+    "seed": 42
+  }
+}

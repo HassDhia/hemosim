@@ -44,6 +44,33 @@ for _ in range(90):
 env.close()
 ```
 
+## Reproducibility
+
+Every number in the paper and in `results/EXPECTED_RESULTS.json` can be
+regenerated from a fresh clone with a single command:
+
+```bash
+./scripts/reproduce.sh
+```
+
+The harness creates a clean venv, installs the package, runs the test
+suite, runs the ISC-12 self-test (if present), re-runs the honest baseline
+evaluation on 100 episodes of the **held-out** patient seed pool, and
+compares the output to `results/EXPECTED_RESULTS.json` with a relative
+tolerance of 5% on `mean_reward`. End-to-end in well under 30 minutes on a
+laptop.
+
+Exit code 0 means PASS; non-zero means divergence (with a per-metric diff
+table printed to stdout). No number in this repo is allowed to come from a
+formula — everything must survive `./scripts/reproduce.sh`.
+
+**Train/held-out seed discipline.** Training uses seeds in `range(0, 10000)`;
+evaluation uses seeds in `range(100000, 101000)`. The two pools are disjoint
+by 90,000 seeds so that training on one pool cannot accidentally reveal a
+patient from the other. See `HELDOUT_SEEDS.md` for the full policy and
+`src/hemosim/reproducibility.py` for the `assert_held_out` / `assert_train`
+guards.
+
 ## Paper
 
 The accompanying paper is available at:

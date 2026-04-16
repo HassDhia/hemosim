@@ -31,21 +31,25 @@ class WarfarinClinicalBaseline:
         inr = obs[0] * 6.0  # denormalize INR
         days = obs[7] * 90  # denormalize days
 
-        # Initial dose: 5mg (scaled: 5/15 = 0.333)
+        # Days 0-2: standard 5 mg loading. Day 3+: titrate monotonically.
+        # The v0.1 table plateaued at 5 mg for INR 1.5-1.99, which never
+        # pushed sub-target patients into the therapeutic range. Fixed so
+        # subtherapeutic INR escalates the dose and supratherapeutic INR
+        # reduces it.
         if days < 3:
             dose_mg = 5.0
         elif inr < 1.5:
-            dose_mg = 7.5  # increase dose
+            dose_mg = 10.0
         elif inr < 2.0:
-            dose_mg = 5.0  # slight increase
+            dose_mg = 7.5
         elif inr <= 3.0:
-            dose_mg = 3.0  # therapeutic - maintain
+            dose_mg = 5.0
         elif inr <= 4.0:
-            dose_mg = 1.5  # reduce
+            dose_mg = 2.5
         elif inr <= 5.0:
-            dose_mg = 0.5  # hold/minimal
+            dose_mg = 1.0
         else:
-            dose_mg = 0.0  # hold
+            dose_mg = 0.0
 
         dose_scaled = np.clip(dose_mg / 15.0, 0.0, 1.0)
         return np.array([dose_scaled], dtype=np.float32)
