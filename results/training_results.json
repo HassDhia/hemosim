@@ -4,105 +4,101 @@
       "clinical_baseline": {
         "mean_reward": -17.0,
         "std_reward": 0.0,
-        "episodes": 100,
-        "therapeutic_rate": 0.0,
         "min_reward": -17.0,
-        "max_reward": -17.0
+        "max_reward": -17.0,
+        "episodes": 20,
+        "therapeutic_rate": 0.0,
+        "therapeutic_rate_std": 0.0,
+        "episodes_majority_therapeutic": 0.0,
+        "global_therapeutic_step_ratio": 0.0
       },
       "random": {
         "mean_reward": -17.0,
         "std_reward": 0.0,
-        "episodes": 100,
-        "therapeutic_rate": 0.0,
         "min_reward": -17.0,
-        "max_reward": -17.0
-      },
-      "ppo": {
-        "mean_reward": -16.15,
-        "std_reward": 0.0,
-        "episodes": 100,
+        "max_reward": -17.0,
+        "episodes": 20,
         "therapeutic_rate": 0.0,
-        "min_reward": -16.15,
-        "max_reward": -16.15
-      }
+        "therapeutic_rate_std": 0.0,
+        "episodes_majority_therapeutic": 0.0,
+        "global_therapeutic_step_ratio": 0.0
+      },
+      "ppo": null
     },
     "hemosim/HeparinInfusion-v0": {
       "clinical_baseline": {
-        "mean_reward": -23.79253274122941,
-        "std_reward": 0.32145304100732586,
-        "episodes": 100,
+        "mean_reward": -23.88740292687509,
+        "std_reward": 0.12619005566332891,
+        "min_reward": -23.947571066326212,
+        "max_reward": -23.3622688543604,
+        "episodes": 20,
         "therapeutic_rate": 0.0,
-        "min_reward": -23.949281861220385,
-        "max_reward": -22.917586717719097
+        "therapeutic_rate_std": 0.0,
+        "episodes_majority_therapeutic": 0.0,
+        "global_therapeutic_step_ratio": 0.0
       },
       "random": {
-        "mean_reward": -24.97889624671088,
-        "std_reward": 2.8467478236214903,
-        "episodes": 100,
-        "therapeutic_rate": 0.06766917293233082,
-        "min_reward": -37.851745568556865,
-        "max_reward": -22.022126185697353
+        "mean_reward": -24.379494510748234,
+        "std_reward": 2.3817072866572224,
+        "min_reward": -31.591258528325785,
+        "max_reward": -22.558170561397564,
+        "episodes": 20,
+        "therapeutic_rate": 0.05,
+        "therapeutic_rate_std": 0.15000000000000002,
+        "episodes_majority_therapeutic": 0.0,
+        "global_therapeutic_step_ratio": 0.08333333333333333
       },
-      "ppo": {
-        "mean_reward": -22.2469970525235,
-        "std_reward": 0.273235084856227,
-        "episodes": 100,
-        "therapeutic_rate": 0.0,
-        "min_reward": -22.793467222235954,
-        "max_reward": -21.83714442523916
-      }
+      "ppo": null
     },
     "hemosim/DOACManagement-v0": {
       "clinical_baseline": {
-        "mean_reward": 12.98,
-        "std_reward": 5.17779876009101,
-        "episodes": 100,
+        "mean_reward": 13.45,
+        "std_reward": 2.312466215969436,
+        "min_reward": 7.0,
+        "max_reward": 18.0,
+        "episodes": 20,
         "therapeutic_rate": 0.0,
-        "min_reward": -8.5,
-        "max_reward": 18.0
+        "therapeutic_rate_std": 0.0,
+        "episodes_majority_therapeutic": 0.0,
+        "global_therapeutic_step_ratio": 0.0
       },
       "random": {
-        "mean_reward": -25.235,
-        "std_reward": 8.721082214954748,
-        "episodes": 100,
+        "mean_reward": -23.95,
+        "std_reward": 8.65,
+        "min_reward": -39.5,
+        "max_reward": -8.5,
+        "episodes": 20,
         "therapeutic_rate": 0.0,
-        "min_reward": -44.5,
-        "max_reward": -4.0
+        "therapeutic_rate_std": 0.0,
+        "episodes_majority_therapeutic": 0.0,
+        "global_therapeutic_step_ratio": 0.0
       },
-      "ppo": {
-        "mean_reward": 23.7955,
-        "std_reward": 4.401128946077359,
-        "episodes": 100,
-        "therapeutic_rate": 0.0,
-        "min_reward": 14.993242107845283,
-        "max_reward": 30.39719341911604
-      }
+      "ppo": null
     },
     "hemosim/DICManagement-v0": {
       "clinical_baseline": {
-        "mean_reward": -112.2395,
-        "std_reward": 31.776150093269635,
-        "episodes": 100,
+        "mean_reward": -117.71750000000002,
+        "std_reward": 28.773317826590656,
+        "min_reward": -172.24999999999997,
+        "max_reward": -50.0,
+        "episodes": 20,
         "therapeutic_rate": 0.0,
-        "min_reward": -232.24999999999997,
-        "max_reward": -49.2
+        "therapeutic_rate_std": 0.0,
+        "episodes_majority_therapeutic": 0.0,
+        "global_therapeutic_step_ratio": 0.0
       },
       "random": {
-        "mean_reward": -129.44449999999998,
-        "std_reward": 28.028738729204353,
-        "episodes": 100,
+        "mean_reward": -129.45499999999998,
+        "std_reward": 22.35267265899092,
+        "min_reward": -170.95000000000002,
+        "max_reward": -101.45,
+        "episodes": 20,
         "therapeutic_rate": 0.0,
-        "min_reward": -303.40000000000003,
-        "max_reward": -87.79999999999998
+        "therapeutic_rate_std": 0.0,
+        "episodes_majority_therapeutic": 0.0,
+        "global_therapeutic_step_ratio": 0.0
       },
-      "ppo": {
-        "mean_reward": -101.466025,
-        "std_reward": 27.00972757927919,
-        "episodes": 100,
-        "therapeutic_rate": 0.0,
-        "min_reward": -155.48548015855837,
-        "max_reward": -60.951433631081215
-      }
+      "ppo": null
     }
   },
   "training_config": {
@@ -116,7 +112,8 @@
   },
   "metadata": {
     "package_version": "0.1.0",
-    "timestamp": "2026-04-14T10:29:33.090281+00:00",
-    "test_count": 142
+    "timestamp": "2026-04-16T19:20:32.052945+00:00",
+    "n_eval_episodes": 20,
+    "generator": "generate_results.py v2 (honest)"
   }
 }
