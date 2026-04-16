@@ -115,8 +115,8 @@ class TestEnvironmentRegistration:
 
 class TestPackageMetadata:
     def test_version_consistency(self):
-        """Package version should be 0.1.0."""
-        assert hemosim.__version__ == "0.1.0"
+        """Package version should be 0.2.0 (v2 release)."""
+        assert hemosim.__version__ == "0.2.0"
 
     def test_package_importable(self):
         """All submodules should be importable."""
