@@ -613,43 +613,6 @@ DICManagement-v0     & $-110.92 \pm 29.28$ & $-129.07 \pm 21.66$ & null (deferre
 
 The calibration residuals from \S\ref{sec:calibration} are the second results artifact of this paper. Warfarin fits to RMSE 0.0013 with all three targets within 0.004~INR of expected (Table~\ref{tab:warfarin_residuals}). Heparin fits two of three targets exactly, with an honest Nemati TTR residual of $-0.175$ that motivates the POMDP reformulation (Table~\ref{tab:heparin_residuals}). DOAC event rates fall within trial confidence intervals for bleeding across all three drugs; rivaroxaban stroke rate is elevated and flagged for Phase~2 (Table~\ref{tab:doac_validation}).
 
-\subsection{Figures}
-
-\begin{figure}[ht]
-  \centering
-  % TODO: Generate calibration fit figure (simulated vs target aPTT response curves
-  % for Raschke nomogram). Script path: scripts/plot_calibration_fit.py (to be added).
-  % Planned contents: x-axis hours 0-24; y-axis aPTT seconds; lines for simulated
-  % fit vs Raschke 1993 target trajectory; shaded 60-100s therapeutic band.
-  \fbox{\parbox{0.7\textwidth}{\centering\textit{[Figure 1 placeholder: simulated vs Raschke target aPTT response curve; TODO: generate from \texttt{scripts/plot\_calibration\_fit.py}.]}}}
-  \caption{Calibration fit: simulated aPTT response under 80~U/kg bolus + 18~U/kg/hr Raschke nomogram, compared against the Raschke 1993 target mean of 75~s at 6~h. The shaded band is the 60--100~s therapeutic window.}
-  \label{fig:calibration_fit}
-\end{figure}
-
-\begin{figure}[ht]
-  \centering
-  % TODO: POMDP env schematic (order -> delay -> noise -> return lab flow).
-  % Script path: scripts/plot_pomdp_schematic.py (to be added, or drawn in TikZ
-  % inline). Planned contents: boxes for agent, environment, lab queue; arrows
-  % for (a) lab order action, (b) TAT delay, (c) noisy value return, (d) dose
-  % action, (e) true-state transition.
-  \fbox{\parbox{0.7\textwidth}{\centering\textit{[Figure 2 placeholder: POMDP order $\to$ delay $\to$ noise $\to$ return schematic; TODO: draw in TikZ or via \texttt{scripts/plot\_pomdp\_schematic.py}.]}}}
-  \caption{\texttt{hemosim/HeparinInfusion-POMDP-v0} observation flow. Each lab order is issued as an action, queued with a turnaround time, returns with analytical noise, and is placed in the observation history buffer. The policy acts on observed history, not on the true state.}
-  \label{fig:pomdp_schematic}
-\end{figure}
-
-\begin{figure}[ht]
-  \centering
-  % TODO: Lab-ordering cost-benefit sweep. Script path:
-  % scripts/plot_lab_sweep.py (to be added). Planned contents: x-axis = lab
-  % order frequency (aPTT orders per day, 1..8); y-axis = Rosendaal TTR
-  % estimation accuracy; line for each lab panel configuration; mark the
-  % operating point used by Raschke (q6h = 4/day).
-  \fbox{\parbox{0.7\textwidth}{\centering\textit{[Figure 3 placeholder: lab order frequency vs TTR estimation accuracy sensitivity analysis; TODO: generate from \texttt{scripts/plot\_lab\_sweep.py}.]}}}
-  \caption{Sensitivity of Rosendaal TTR estimation accuracy to lab-ordering frequency. More frequent aPTT orders reduce estimation variance but incur the per-order cost. The Raschke operating point (q6h) is marked.}
-  \label{fig:lab_sweep}
-\end{figure}
-
 % ============================================================================
 % SECTION 14: CLINICAL TRANSLATION PATHWAY (NEW DISCUSSION)
 % ============================================================================
