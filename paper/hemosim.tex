@@ -613,6 +613,35 @@ DICManagement-v0     & $-110.92 \pm 29.28$ & $-129.07 \pm 21.66$ & null (deferre
 
 The calibration residuals from \S\ref{sec:calibration} are the second results artifact of this paper. Warfarin fits to RMSE 0.0013 with all three targets within 0.004~INR of expected (Table~\ref{tab:warfarin_residuals}). Heparin fits two of three targets exactly, with an honest Nemati TTR residual of $-0.175$ that motivates the POMDP reformulation (Table~\ref{tab:heparin_residuals}). DOAC event rates fall within trial confidence intervals for bleeding across all three drugs; rivaroxaban stroke rate is elevated and flagged for Phase~2 (Table~\ref{tab:doac_validation}).
 
+\subsection{Figures}
+
+Figure~\ref{fig:baseline_comparison} visualizes the quantitative gap between the clinical guideline and random policy across the four environments. The DOAC gap ($\Delta = 38.7$) is the largest of the four, reflecting that guideline-based DOAC selection against a CHA$_2$DS$_2$-VASc / HAS-BLED / CrCl patient encodes substantially more structure than the uniformly random alternative; the warfarin and heparin gaps are tight, identifying those two environments as the ones where a learned policy has the most headroom above random. These numbers are the honest published-baseline reference that any subsequent RL policy trained in \texttt{hemosim} must be compared against.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.92\textwidth]{../figures/fig1_baseline_comparison.png}
+  \caption{Clinical-guideline baselines outperform random policies by the largest margin on DOAC management ($\Delta = 38.7$) and DIC management ($\Delta = 18.1$); the warfarin and heparin gaps are comparatively narrow (0.2 and 0.5 respectively), identifying those two environments as the ones where a learned policy has the most headroom above random. Bars show mean episode reward over 100 held-out-seed episodes (seeds 100000--100099); error bars are one standard deviation. Data source: \texttt{results/EXPECTED\_RESULTS.json}.}
+  \label{fig:baseline_comparison}
+\end{figure}
+
+Figure~\ref{fig:calibration_residuals} shows the normalized residual (simulated minus expected, divided by expected) for each published-data benchmark. Warfarin (IWPC mean maintenance dose, IWPC days-to-therapeutic, Hamberg steady-state INR) all fit within the $\pm10\%$ tolerance band. Heparin aPTT at 6~h (Raschke 1993) and therapeutic concentration midpoint (Hirsh 2001) also fit within tolerance. The one outlier is the Nemati 2016 TTR benchmark, for which the simulator produces $0.375$ against the reported $0.55$ (normalized residual $-0.32$). This is the honest gap we annotate on the figure: the fixed Raschke nomogram applied to our fully-observable baseline environment cannot reproduce the TTR variability that Nemati documented in MIMIC-II, because real TTR variability arises from lab-observation delays and re-titration events that the non-POMDP simulator does not model. This is the quantitative case for the POMDP reformulation in \S\ref{sec:pomdp}.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.95\textwidth]{../figures/fig2_calibration_residuals.png}
+  \caption{Warfarin (IWPC, Hamberg) and heparin (Raschke, Hirsh) benchmarks all fit within a $\pm10\%$ normalized-residual tolerance band. The single outlier is the Nemati 2016 TTR benchmark at $-0.32$ normalized residual (simulated TTR $0.375$ vs.~reported $0.55$), which we argue in the main text is not a calibration failure but the quantitative motivation for the POMDP reformulation --- a fixed nomogram on a fully-observable simulator cannot reproduce the TTR variance Nemati documented. DOAC event rates (dabigatran, rivaroxaban, apixaban stroke/bleed per 100 patient-years) are within their trial confidence intervals for bleeding across all three drugs. Data source: \texttt{results/published\_calibration.json}.}
+  \label{fig:calibration_residuals}
+\end{figure}
+
+Figure~\ref{fig:pomdp_flow} sketches the observation flow in \texttt{hemosim/HeparinInfusion-POMDP-v0}. The policy issues two action channels at every step --- a dose action (infusion rate and optional bolus) and a lab-order action (aPTT, anti-Xa, platelets). Lab orders are queued against the true internal state with the literature-cited turnaround times and coefficients of variation, and return after their TAT elapses. The policy observes the returned lab history, not the true internal state. This is the minimal structural change that turns the v0.1 oracle-lab environment into one where the measurement-delay and measurement-noise dynamics that clinicians actually contend with are first-class parts of the decision problem.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.95\textwidth]{../figures/fig3_pomdp_flow.png}
+  \caption{\texttt{hemosim/HeparinInfusion-POMDP-v0} observation flow. The policy produces two action channels: a dose action applied directly to the environment and a lab-order action queued for delayed noisy return. The ground truth at order time is captured and, after the lab's turnaround time elapses, returned with analytical variation (aPTT 45~min / CV 8\%, anti-Xa 180~min / CV 12\%, platelets 45~min / CV 5\%, cited to Bowen 2016 and Lippi 2012). The agent never observes the true internal state. This is the structural change that directly addresses the v0.1 pharmacist critique that prior oracle-lab environments do not reflect ICU measurement reality.}
+  \label{fig:pomdp_flow}
+\end{figure}
+
 % ============================================================================
 % SECTION 14: CLINICAL TRANSLATION PATHWAY (NEW DISCUSSION)
 % ============================================================================
