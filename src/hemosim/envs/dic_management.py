@@ -35,6 +35,7 @@ import gymnasium as gym
 import numpy as np
 from gymnasium import spaces
 
+from hemosim.models.coagulation import CoagulationCascade
 from hemosim.models.patient import PatientGenerator, _calculate_isth_score
 
 EPISODE_HOURS = 168
@@ -67,9 +68,29 @@ class DICManagementEnv(gym.Env):
 
     metadata = {"render_modes": []}
 
-    def __init__(self, difficulty: str = "medium", **kwargs) -> None:
+    def __init__(
+        self,
+        difficulty: str = "medium",
+        coag_cascade_mode: bool = False,
+        **kwargs,
+    ) -> None:
+        """
+        Parameters
+        ----------
+        difficulty
+            Patient-severity tier: ``"easy"``, ``"medium"``, or ``"hard"``.
+        coag_cascade_mode
+            When ``True``, the Hockin-Mann reduced coagulation cascade ODE
+            (``hemosim.models.coagulation.CoagulationCascade``) runs alongside
+            the flat algebraic dynamics and provides mechanistic fibrinogen
+            evolution. When ``False`` (default, v0.1 behaviour), only the
+            flat dynamics run. Enables downstream ablations and reviewer
+            reassurance that the coagulation ODE is actually wired.
+            Reference: Hockin MF et al. J Biol Chem 2002.
+        """
         super().__init__()
         self.difficulty = difficulty
+        self.coag_cascade_mode = bool(coag_cascade_mode)
 
         self.observation_space = spaces.Box(
             low=np.zeros(8, dtype=np.float32),
@@ -83,7 +104,7 @@ class DICManagementEnv(gym.Env):
         self._hours_elapsed = 0.0
         self._np_random: np.random.Generator | None = None
 
-        # DIC state variables (direct tracking, not using coag ODE model)
+        # Flat DIC state variables (primary state).
         self._platelet_count = 100.0   # x10^3/uL
         self._fibrinogen = 200.0       # mg/dL
         self._pt = 16.0                # seconds
@@ -92,6 +113,14 @@ class DICManagementEnv(gym.Env):
         self._hemorrhage_severity = 0.0  # 0-1
         self._heparin_active = False
         self._prev_dic_score = 5
+
+        # Optional mechanistic coagulation cascade (ISC-3). The cascade is
+        # allocated once per env instance and its state is reset on each
+        # episode. Integration is silent when `coag_cascade_mode=False`.
+        self._cascade: CoagulationCascade | None = (
+            CoagulationCascade() if self.coag_cascade_mode else None
+        )
+        self._cascade_state: np.ndarray | None = None
 
     def reset(self, *, seed: int | None = None, options: dict | None = None):
         super().reset(seed=seed)
@@ -121,6 +150,24 @@ class DICManagementEnv(gym.Env):
         self._prev_dic_score = _calculate_isth_score(
             self._platelet_count, self._fibrinogen, self._pt, self._d_dimer
         )
+
+        # Initialize cascade state when mode enabled. Baseline physiological
+        # state perturbed by DIC severity: more activation (TF:VIIa, Xa,
+        # thrombin), lower fibrinogen, higher AT-III consumption.
+        if self._cascade is not None:
+            severity_mult = {
+                "mild": 1.0, "moderate": 1.5, "severe": 2.0,
+            }.get(self._patient["severity"], 1.0)
+            self._cascade_state = np.array([
+                0.5 * severity_mult,               # TF:VIIa initial activation
+                2.0 * severity_mult,               # Xa already elevated
+                5.0 * severity_mult,               # Va co-activated
+                10.0 * severity_mult,              # thrombin (nM)
+                self._fibrinogen,                  # fibrinogen seed from patient
+                severity_mult * 20.0,              # fibrin already formed
+                200.0 * severity_mult,             # AT-III consumed
+                0.15 * severity_mult,              # platelet activation frac
+            ], dtype=np.float64)
 
         obs = self._get_obs()
         info = self._get_info()
@@ -153,6 +200,44 @@ class DICManagementEnv(gym.Env):
         # Heparin effect on microvascular thrombosis
         self._heparin_active = heparin_level > 0
 
+        # --- Advance CoagulationCascade ODE (optional, ISC-3) ---
+        #
+        # Run the Hockin-Mann reduced cascade for the STEP_HOURS window and
+        # blend the cascade-derived fibrinogen into the flat-dynamics value.
+        # The cascade provides mechanistic consumption; flat dynamics still
+        # provide the coarse-grained recovery / treatment-response terms.
+        cascade_fibrinogen_delta = 0.0
+        if self._cascade is not None and self._cascade_state is not None:
+            # Heparin dampens the coagulation cascade by enhancing AT-III
+            # activity — reflect this by transiently boosting AT-III.
+            if self._heparin_active:
+                heparin_at3_boost = 200.0 if heparin_level == 1 else 500.0
+                self._cascade_state = self._cascade_state.copy()
+                self._cascade_state[6] = min(
+                    self._cascade_state[6] + heparin_at3_boost,
+                    self._cascade.params["at3_total"] * 0.9,
+                )
+            # Transfused fibrinogen (from cryo + FFP) is already reflected in
+            # self._fibrinogen above; sync the cascade to that value so the
+            # ODE sees the treatment effect.
+            pre_fib = float(self._cascade_state[4])
+            self._cascade_state[4] = self._fibrinogen
+            try:
+                t_end_min = STEP_HOURS * 60.0
+                _t, traj = self._cascade.simulate(
+                    self._cascade_state,
+                    t_span=(0.0, t_end_min),
+                    dt=5.0,  # 5-min resolution; 4h window = 48 samples
+                )
+                self._cascade_state = np.asarray(traj[-1], dtype=np.float64)
+                post_fib = float(self._cascade_state[4])
+                cascade_fibrinogen_delta = post_fib - pre_fib
+            except Exception:
+                # ODE integration failures are non-fatal: cascade stalls but
+                # env continues on flat dynamics. Never kill an episode
+                # because of a stiff-ODE edge case.
+                cascade_fibrinogen_delta = 0.0
+
         # --- Simulate DIC progression over STEP_HOURS ---
 
         severity_factor = {"mild": 0.5, "moderate": 1.0, "severe": 1.5}.get(
@@ -161,10 +246,22 @@ class DICManagementEnv(gym.Env):
         if self.difficulty == "hard":
             severity_factor *= 1.3
 
-        # Consumption: platelets and fibrinogen are consumed
+        # Consumption: platelets and fibrinogen are consumed.
+        # When the cascade ODE is active, half of the fibrinogen consumption
+        # signal comes from the mechanistic cascade delta (negative when
+        # cascade burns fibrinogen faster than thrombin generation can be
+        # replenished). Keeps the flat-dynamics baseline as the ground
+        # truth when cascade is off.
         consumption_rate = severity_factor * (1.0 - 0.3 * self._heparin_active)
         self._platelet_count -= consumption_rate * 3.0 * STEP_HOURS / 4.0
-        self._fibrinogen -= consumption_rate * 5.0 * STEP_HOURS / 4.0
+        flat_fibrinogen_consumption = consumption_rate * 5.0 * STEP_HOURS / 4.0
+        if self._cascade is not None and cascade_fibrinogen_delta != 0.0:
+            # Blend: 50% cascade-derived, 50% flat. Cascade delta is already
+            # a signed change over the same window.
+            self._fibrinogen += 0.5 * cascade_fibrinogen_delta
+            self._fibrinogen -= 0.5 * flat_fibrinogen_consumption
+        else:
+            self._fibrinogen -= flat_fibrinogen_consumption
 
         # PT worsens as factors are consumed
         self._pt += consumption_rate * 0.3 * STEP_HOURS / 4.0
@@ -282,7 +379,7 @@ class DICManagementEnv(gym.Env):
         dic_score = _calculate_isth_score(
             self._platelet_count, self._fibrinogen, self._pt, self._d_dimer
         )
-        return {
+        info = {
             "isth_dic_score": dic_score,
             "platelet_count": self._platelet_count,
             "fibrinogen": self._fibrinogen,
@@ -293,4 +390,19 @@ class DICManagementEnv(gym.Env):
             "heparin_active": self._heparin_active,
             "hours_elapsed": self._hours_elapsed,
             "patient": self._patient,
+            "coag_cascade_mode": self.coag_cascade_mode,
         }
+        if self._cascade is not None and self._cascade_state is not None:
+            # Expose cascade state for ablations and sensitivity analyses.
+            # Order matches CoagulationCascade state vector.
+            info["cascade_state"] = {
+                "tf_viia": float(self._cascade_state[0]),
+                "xa": float(self._cascade_state[1]),
+                "va": float(self._cascade_state[2]),
+                "thrombin": float(self._cascade_state[3]),
+                "fibrinogen_cascade": float(self._cascade_state[4]),
+                "fibrin": float(self._cascade_state[5]),
+                "at3_bound": float(self._cascade_state[6]),
+                "platelet_act_frac": float(self._cascade_state[7]),
+            }
+        return info

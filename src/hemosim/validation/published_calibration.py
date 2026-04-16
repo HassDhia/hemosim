@@ -462,9 +462,13 @@ class FitResult:
 _RASCHKE_WEIGHT_KG = 80.0
 _RASCHKE_BOLUS_U_PER_KG = 80.0
 _RASCHKE_INFUSION_U_PER_KG_HR = 18.0
-_RASCHKE_TTR_DURATION_H = 48  # steady-state window used for TTR surrogate
+_RASCHKE_TTR_DURATION_H = 24  # first-24-hour window used for TTR surrogate
 _RASCHKE_TTR_LOW = 60.0
 _RASCHKE_TTR_HIGH = 100.0
+# TTR weighted down because summary-level TTR estimates are noisier than
+# mean-aPTT / mean-conc measurements; ratio chosen so that aPTT and
+# concentration drive the fit but TTR still contributes gradient.
+_RASCHKE_TTR_WEIGHT = 0.3
 
 
 def _simulate_raschke(
@@ -524,10 +528,12 @@ def _simulate_raschke(
     model2.step(infusion_rate_u_hr=infusion, bolus_u=bolus, dt_hours=6.0)
     conc_6h = model2.get_concentration()
 
-    # TTR over the steady-state window (hours 24-48 on the 0-48h trace).
-    ss_window = np.asarray(aptt_trajectory[24:_RASCHKE_TTR_DURATION_H])
-    in_range = (ss_window >= _RASCHKE_TTR_LOW) & (ss_window <= _RASCHKE_TTR_HIGH)
-    ttr = float(np.mean(in_range)) if ss_window.size else 0.0
+    # TTR surrogate = fraction of the first 24 hours (post-bolus, nomogram-
+    # driven phase) with aPTT in 60-100s. This matches how Nemati 2016
+    # measured TTR over the early heparin course in their MIMIC-II cohort.
+    window = np.asarray(aptt_trajectory[:_RASCHKE_TTR_DURATION_H])
+    in_range = (window >= _RASCHKE_TTR_LOW) & (window <= _RASCHKE_TTR_HIGH)
+    ttr = float(np.mean(in_range)) if window.size else 0.0
     return float(aptt_6h), float(conc_6h), ttr
 
 
@@ -566,7 +572,7 @@ def _heparin_loss(
     r_conc = (conc_6h - target_conc) / target_conc
     r_ttr = (ttr - target_ttr) / max(target_ttr, 1e-3)
 
-    return float(r_aptt**2 + r_conc**2 + r_ttr**2)
+    return float(r_aptt**2 + r_conc**2 + _RASCHKE_TTR_WEIGHT * r_ttr**2)
 
 
 def fit_heparin_pkpd(
