@@ -1,0 +1,615 @@
+\documentclass[11pt]{article}
+
+% --- Packages ---
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage[numbers]{natbib}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{longtable}
+\usepackage{tabularx}
+
+% --- Metadata ---
+\title{\textbf{Silent Deployment Observational Study of a Reinforcement-Learning-Derived Heparin Dosing Policy in Adult Intensive Care:}\\
+A SPIRIT 2013-Compliant Clinical Trial Protocol}
+\author{
+  Principal Investigator: \textcolor{red}{[PLACEHOLDER --- PI NAME, MD, PhD]}\\
+  Co-Investigator (Computational): Hass Dhia\\
+  Smart Technology Investments Research Institute\\
+  \texttt{hass@smarttechinvest.com}\\
+  \\
+  Proposed Partner Site: \textcolor{red}{[PLACEHOLDER --- UCSD Health Sulpizio Cardiovascular Center / Jacobs Medical Center ICU]}
+}
+\date{Protocol Version 1.0 --- Draft Date: April 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{center}
+\fbox{\parbox{0.85\textwidth}{
+\textbf{Protocol Status:} Draft for IRB pre-submission review.\\
+\textbf{Protocol Identifier:} \textcolor{red}{[PLACEHOLDER --- UCSD HRPP PROTOCOL \#]}\\
+\textbf{ClinicalTrials.gov Identifier:} \textcolor{red}{[PLACEHOLDER --- NCT\#, to be assigned upon registration prior to first patient enrollment]}\\
+\textbf{Sponsor / Funding:} \textcolor{red}{[PLACEHOLDER --- e.g., NIH R01 / Foundation Grant / Departmental]}\\
+\textbf{Regulatory Status:} Non-interventional, observational, silent deployment. No modification to patient care. IRB approval with waiver of individual informed consent requested under 45 CFR 46.116(f) (minimal risk, waiver criteria met) and aligned with 21 CFR Part 50 where applicable.
+}}
+\end{center}
+
+\vspace{1em}
+\tableofcontents
+\newpage
+
+% ============================================================================
+% 1. ADMINISTRATIVE INFORMATION (SPIRIT items 1-5)
+% ============================================================================
+\section{Administrative Information}
+\label{sec:admin}
+
+\subsection{Title (SPIRIT item 1)}
+
+Silent Deployment Observational Evaluation of a Reinforcement-Learning-Derived Unfractionated Heparin Dosing Policy Versus Usual Clinician-Directed Care in Adult Intensive Care Unit Patients: A Prospective, Single-Arm, Non-Interventional Concordance Study (the \textbf{SHADOW-HEP} protocol).
+
+\subsection{Trial Registration (SPIRIT item 2)}
+
+This protocol will be prospectively registered at \url{ClinicalTrials.gov} prior to first patient enrollment, using the World Health Organization Trial Registration Data Set. Registration identifier: \textcolor{red}{[PLACEHOLDER --- NCT\#]}. All protocol amendments will be tracked in the registry within 30 days of IRB approval of the amendment.
+
+\subsection{Protocol Version (SPIRIT item 3)}
+
+Version 1.0, drafted \textcolor{red}{[PLACEHOLDER --- DATE]}. Subsequent versions will follow a semantic version schema (MAJOR.MINOR.PATCH) with a full changelog appended as Appendix~A to each superseding document. The currently approved version will be recorded in the electronic regulatory binder maintained by the study coordinator.
+
+\subsection{Funding (SPIRIT item 4)}
+
+\textcolor{red}{[PLACEHOLDER --- e.g., ``This study will be funded by NIH/NHLBI R01 award \#XXXXXX to Dr.\ [PI]. Smart Technology Investments Research Institute provides in-kind computational infrastructure (the \texttt{hemosim} platform) at no cost to the site. No industry funding is involved. The sponsor has no role in the collection, analysis, interpretation of data, writing of the report, or the decision to submit for publication.'']}
+
+\subsection{Roles and Responsibilities (SPIRIT item 5)}
+
+\begin{longtable}{@{}p{4.5cm}p{10.5cm}@{}}
+\toprule
+\textbf{Role} & \textbf{Named Individual / Entity} \\
+\midrule
+\endhead
+Principal Investigator (PI) & \textcolor{red}{[PLACEHOLDER --- PI Name, Institution, Role (e.g., Associate Professor, Critical Care Medicine)]} \\
+Co-Investigator (Clinical) & \textcolor{red}{[PLACEHOLDER --- ICU attending physician partner, Institution]} \\
+Co-Investigator (Pharmacy) & \textcolor{red}{[PLACEHOLDER --- PharmD, Anticoagulation Stewardship]} \\
+Co-Investigator (Computational) & Hass Dhia, Smart Technology Investments Research Institute \\
+Biostatistician & \textcolor{red}{[PLACEHOLDER --- Named statistician with authority over the statistical analysis plan]} \\
+Study Coordinator & \textcolor{red}{[PLACEHOLDER]} \\
+Data Safety Monitoring Board (DSMB) Chair & \textcolor{red}{[PLACEHOLDER --- independent senior clinician, no conflicts]} \\
+Sponsor & \textcolor{red}{[PLACEHOLDER --- e.g., UCSD Office of Research Affairs]} \\
+IRB of Record & University of California San Diego Human Research Protections Program (HRPP) \\
+Data Coordinating Center & \textcolor{red}{[PLACEHOLDER --- site IT / biomedical informatics core]} \\
+\bottomrule
+\end{longtable}
+
+The PI holds ultimate responsibility for protocol conduct, regulatory compliance, and data integrity. The computational co-investigator maintains the locked reference version of the reinforcement-learning (RL) policy artifact and may not modify it during the study period except through a formal protocol amendment approved by the IRB and DSMB.
+
+% ============================================================================
+% 2. INTRODUCTION (SPIRIT item 6)
+% ============================================================================
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{Background and Rationale (SPIRIT item 6a)}
+
+Unfractionated heparin (UFH) remains a cornerstone of parenteral anticoagulation in the adult intensive care unit (ICU) for indications including venous thromboembolism, acute coronary syndromes, extracorporeal circuits, mechanical circulatory support, and bridging anticoagulation. Despite the availability of weight-based nomograms \citep{raschke1993}, UFH dosing remains challenging because of a narrow therapeutic window, pharmacokinetic variability, and heterogeneous patient physiology. Retrospective cohort studies consistently report that critically ill patients spend only 30--60\% of their heparin treatment time with activated partial thromboplastin time (aPTT) values in the target therapeutic range of 60--100 seconds \citep{nemati2016, raghu2017}. Time spent below therapeutic range is associated with thromboembolic progression; time above range is associated with major bleeding.
+
+Reinforcement learning (RL) has emerged as a candidate methodology for learning sequential dosing policies from retrospective intensive care data. Nemati and colleagues \citep{nemati2016} demonstrated in a landmark IEEE Engineering in Medicine and Biology Conference (EMBC) paper that a deep Q-network policy trained on electronic health records from the Multiparameter Intelligent Monitoring in Intensive Care (MIMIC) database could learn heparin dosing recommendations whose ``off-policy'' evaluation suggested improved time-in-therapeutic-range compared to recorded clinical decisions. Subsequent work in related critical care dosing tasks---Raghu et al.\ \citep{raghu2017} for septic shock fluid and vasopressor management, and Komorowski et al.\ \citep{komorowski2018} whose ``AI Clinician'' treatment policy was published in \emph{Nature Medicine}---demonstrated both the promise and the reproducibility challenges of this approach. In particular, Komorowski and colleagues triggered an important methodological debate regarding off-policy evaluation limitations and the danger of confounded observational data producing policies whose prospective performance diverges from retrospective estimates.
+
+A recurring theme across this literature is that RL dosing policies have never, to our knowledge, been prospectively validated against real-time clinician decisions in a registered clinical trial. Every deployment consideration to date has rested on off-policy evaluation alone. A prospective concordance study with silent deployment---where the policy generates recommendations in real time but those recommendations are never shown to clinicians and never influence care---is the minimum credible evidence needed before any patient-facing study of such a policy can be contemplated. This is the premise of the present protocol.
+
+The computational platform used in this study, \texttt{hemosim}, is an open-source, published Gymnasium-compatible reinforcement learning environment suite for hemostasis and anticoagulation \citep{hemosim2026}. It has been calibrated against published PK/PD parameters \citep{hamberg2007, mueck2007}, its clinical outcome metrics module implements Rosendaal time-in-therapeutic-range \citep{rosendaal1993}, International Society on Thrombosis and Haemostasis (ISTH) major bleeding criteria \citep{schulman2005}, the 4T score for heparin-induced thrombocytopenia \citep{lo2006}, and the coagulation substrate rests on a reduced formulation of the Hockin--Mann cascade model \citep{hockin2002}. A partially observable Markov decision process (POMDP) formulation of the heparin environment \citep{hemosim2026} exposes lab ordering as an action, realistic aPTT turnaround times, and measurement noise---directly mirroring the clinical information constraints under which actual ICU anticoagulation decisions are made. The PPO policy being evaluated in this protocol was trained in this POMDP environment.
+
+\subsection{Why Silent Deployment}
+
+Silent deployment (also termed ``shadow deployment'' or ``dark deployment'' in the machine-learning-for-health literature) has three cardinal properties that make it the appropriate first-in-human study design for a novel dosing policy:
+
+\begin{enumerate}
+  \item \textbf{No modification of patient care.} The clinical team manages every patient exactly as they would manage them today. Ordering, dosing, monitoring, and escalation follow the institution's standard UFH protocol. The RL policy runs in a parallel computational pathway, receives the same input state the clinician sees, and produces a recommended dose---but that recommendation is recorded only in the research database. It is never displayed on the electronic health record (EHR), never surfaced to bedside providers, never enters the order-entry system, and never reaches the patient.
+  \item \textbf{Minimal risk to participants.} Because patient care is unmodified, the incremental risk of participating in the study is limited to privacy / data risks of secondary EHR data use. Under the Common Rule (45 CFR 46) these risks are considered minimal, and the study is appropriate for a waiver of individual informed consent under 45 CFR 46.116(f) when the waiver criteria are satisfied (see Section~\ref{sec:ethics}).
+  \item \textbf{Fair prospective evaluation of concordance.} Silent deployment provides the first prospective data on how often the policy's recommendations agree with real-time clinician decisions, and on the primary counterfactual question: if the policy's recommended dose had been given instead of the actual dose, what would time-in-therapeutic-range have been? Because this question is counterfactual it relies on PK/PD simulation using the patient's own parameters; this is a methodological limitation but one that is explicitly quantified and stress-tested in the Statistical Analysis Plan (Section~\ref{sec:stats}).
+\end{enumerate}
+
+\subsection{Objectives (SPIRIT item 7)}
+
+\paragraph{Primary objective.} Establish the \textbf{non-inferiority} of the RL-derived policy's recommended heparin doses, relative to actual clinician-directed doses, on the primary endpoint of Rosendaal time-in-therapeutic-range (TTR) for aPTT (target 60--100 seconds) over the index ICU heparin infusion course.
+
+\paragraph{Secondary objectives.}
+\begin{enumerate}
+  \item Estimate the rate of ISTH major bleeding events \citep{schulman2005} observed under actual care, with analysis of whether the policy's recommended doses would have been lower or higher in the window preceding each event (counterfactual bleed proximity analysis).
+  \item Estimate the rate of thromboembolic events (new venous thromboembolism, thrombotic extension, arterial thromboembolism, circuit thrombosis) observed under actual care, with parallel counterfactual analysis.
+  \item Describe the distribution of 4T heparin-induced thrombocytopenia probability scores \citep{lo2006} computed daily for all enrolled patients.
+  \item Estimate all-cause ICU mortality and ICU length of stay under actual care, descriptively only.
+  \item Quantify the magnitude of the dose-disagreement envelope between policy and clinician across patient-hours.
+  \item Identify subgroup effects by renal function, body weight, and indication for heparin.
+\end{enumerate}
+
+\paragraph{Safety objective.} Monitor the silent deployment for any signal that the policy's recommended doses systematically diverge from clinician doses in a direction that, if deployed, would be expected to increase the rate of major bleeding above a pre-specified threshold. This objective triggers the DSMB stopping rule described in Section~\ref{sec:monitoring}.
+
+% ============================================================================
+% 3. TRIAL DESIGN (SPIRIT item 8)
+% ============================================================================
+\section{Trial Design}
+\label{sec:design}
+
+\subsection{Overall Design (SPIRIT item 8)}
+
+This is a prospective, observational, single-arm, single-center, silent deployment concordance study. There is no patient-facing randomization, no patient-facing intervention, and no patient-facing control arm. Every enrolled patient receives standard-of-care heparin management under the existing institutional protocol and bedside clinician judgment.
+
+\paragraph{Design classification.}
+\begin{itemize}
+  \item \textbf{Study type:} Observational.
+  \item \textbf{Allocation:} Non-randomized (single-arm).
+  \item \textbf{Intervention model:} None applied to patients. Computational ``shadow'' policy runs in parallel.
+  \item \textbf{Masking:} Clinicians and patients are masked to policy recommendations (by design, recommendations are never surfaced).
+  \item \textbf{Primary purpose:} Device/algorithm concordance and safety signal detection prior to any subsequent interventional study.
+\end{itemize}
+
+\paragraph{Enrollment target.} 200--500 patients (planned enrollment 350, with stopping rules that may shorten or extend the study; see Section~\ref{sec:sample_size}).
+
+\paragraph{Study period.} 6--12 months of active enrollment at the partner ICU. Anticipated study duration from IRB approval to primary manuscript submission is 18 months.
+
+\paragraph{Partner site (proposed).} \textcolor{red}{[PLACEHOLDER --- UCSD Health Sulpizio Cardiovascular Center and/or Jacobs Medical Center adult ICU]}. The site must have: (i) a live EHR-integrated heparin protocol with documented aPTT-driven nomogram titration; (ii) an active pharmacy-led anticoagulation stewardship program; (iii) institutional authority to execute a Business Associate Agreement with the computational co-investigator's institution; (iv) a FHIR-capable clinical data export pipeline sufficient to support the data collection requirements in Section~\ref{sec:data}.
+
+% ============================================================================
+% 4. METHODS (SPIRIT items 9-20)
+% ============================================================================
+\section{Methods}
+\label{sec:methods}
+
+\subsection{Study Setting (SPIRIT item 9)}
+
+The study will be conducted at a single adult intensive care unit at the partner site described above. ICU type will include medical, surgical, cardiac, and cardiovascular ICU beds as specified in the final site-specific protocol amendment. Recruitment is restricted to in-patient ICU encounters.
+
+\subsection{Eligibility Criteria (SPIRIT item 10)}
+
+\subsubsection{Inclusion Criteria}
+
+A patient-ICU-encounter is eligible if all of the following are true at the time of the first unfractionated heparin infusion order:
+\begin{enumerate}
+  \item Age $\geq$ 18 years.
+  \item Admitted to a study-participating ICU bed.
+  \item Receiving a continuous intravenous infusion of unfractionated heparin (UFH) titrated to aPTT, with an explicit therapeutic-anticoagulation target range (e.g., 60--100 seconds; site-specific target ranges as defined by the institutional protocol will be respected and recorded).
+  \item Expected infusion duration $\geq$ 12 hours at the time of enrollment decision.
+  \item Baseline aPTT and platelet count measured within 24 hours prior to heparin initiation.
+\end{enumerate}
+
+\subsubsection{Exclusion Criteria}
+
+A patient-ICU-encounter is excluded if any of the following are true at the time of the first UFH infusion order:
+\begin{enumerate}
+  \item Age $<$ 18 years.
+  \item Pregnancy.
+  \item Incarcerated or in custody of law enforcement.
+  \item UFH indication is extracorporeal membrane oxygenation (ECMO) or ventricular assist device circuit anticoagulation targeting an anti-Xa or activated clotting time (ACT) rather than aPTT. These indications use different targets and will be handled in a separate future protocol.
+  \item Known or suspected heparin-induced thrombocytopenia (HIT) at the time of heparin initiation (baseline 4T $\geq$ 4 and/or prior HIT-positive anti-PF4 history).
+  \item Active major bleeding at heparin initiation (defined per ISTH criteria).
+  \item Receiving concurrent therapeutic-dose direct oral anticoagulant, vitamin K antagonist, fondaparinux, or argatroban.
+  \item Previously enrolled in this study during a prior ICU admission (to preserve independence assumptions; re-admissions will be flagged in the registry but excluded from the primary analysis).
+  \item Opt-out from research participation on file, consistent with the site's Notice of Privacy Practices mechanisms, where applicable.
+  \item Any condition that, in the judgment of the bedside attending, makes the patient-ICU-encounter inappropriate for observational enrollment (recorded with free-text reason).
+\end{enumerate}
+
+\subsection{Interventions (SPIRIT item 11)}
+
+\subsubsection{No Patient-Facing Intervention}
+
+This is a silent deployment study. There is no patient-facing intervention under test. All dosing, monitoring, and escalation decisions are made by the bedside clinical team according to the institution's standard heparin protocol. Neither enrolled patients nor their clinicians are exposed to the RL policy's recommendations at any time during the study.
+
+\subsubsection{Usual-Care Reference Arm}
+
+Usual care is defined as the site's existing EHR-integrated unfractionated heparin protocol, which at the proposed partner site incorporates a weight-based nomogram derived from Raschke et al.\ \citep{raschke1993} with institution-specific modifications, aPTT-driven dose adjustments, and pharmacy-led stewardship oversight. The specific nomogram, aPTT draw frequency, and escalation rules will be recorded verbatim in the site-specific Manual of Operations (MOP) as an appendix to this protocol and locked at the time of study initiation.
+
+\subsubsection{Shadow Policy: The RL Dosing Algorithm Under Evaluation}
+
+The shadow policy under evaluation is a Proximal Policy Optimization (PPO) agent trained using the Stable-Baselines3 implementation on the \texttt{hemosim/HeparinInfusion-POMDP-v0} environment \citep{hemosim2026}. Key characteristics of the policy, \textbf{locked prior to study initiation}:
+
+\begin{itemize}
+  \item \textbf{Observation space:} Partially observable; includes history buffer of returned aPTT lab values with measurement timestamps, current heparin infusion rate, patient weight, estimated creatinine clearance, platelet count trajectory, hours since heparin initiation.
+  \item \textbf{Action space:} Continuous infusion rate in U/hr $\in [0, 2500]$ and a discrete bolus flag.
+  \item \textbf{Policy artifact:} A specific cryptographically-hashed model file (SHA-256 fingerprint recorded in the Manual of Operations) that will not be retrained, fine-tuned, or substituted during the study period without a formal protocol amendment.
+  \item \textbf{Deployment mode:} Computationally executed on the partner institution's research infrastructure or a HIPAA-compliant cloud partition under the site's Business Associate Agreement. The policy executes once per new lab result and once per hour (whichever is sooner) for each enrolled patient.
+  \item \textbf{Output:} A recommended dose $\hat{d}_t$ at time $t$. This output is written to the research database. It is not written to the EHR order-entry system and is not communicated to any member of the care team.
+\end{itemize}
+
+\subsubsection{Criteria for Silent-Deployment Pause or Discontinuation}
+
+The silent deployment will be paused or terminated on any of the following:
+\begin{itemize}
+  \item Stopping rule triggered by the DSMB (Section~\ref{sec:monitoring}).
+  \item Security or privacy incident involving the research database.
+  \item Institutional decision to withdraw the partner site from the study.
+  \item Protocol amendment under IRB review that requires a pause.
+\end{itemize}
+
+\subsection{Outcomes (SPIRIT item 12)}
+
+\subsubsection{Primary Outcome}
+
+\textbf{Time-in-Therapeutic-Range (TTR) for aPTT, by the Rosendaal linear-interpolation method} \citep{rosendaal1993}, computed over the index heparin infusion course for each enrolled patient, for:
+\begin{itemize}
+  \item \textbf{Actual care:} aPTT trajectories observed under clinician-directed dosing.
+  \item \textbf{Counterfactual (shadow policy):} aPTT trajectories estimated under the doses the policy would have recommended, simulated using the patient's own calibrated heparin PK/PD parameters through the \texttt{hemosim} heparin PK/PD model \citep{hemosim2026}, with sensitivity analyses for PK/PD parameter uncertainty (Section~\ref{sec:stats}).
+\end{itemize}
+
+The primary comparison is between the two TTR values within each patient, and the study is powered to detect \textbf{non-inferiority} of the counterfactual arm relative to actual care with a clinically pre-specified non-inferiority margin of 10 percentage points (see Section~\ref{sec:sample_size}).
+
+\subsubsection{Secondary Outcomes}
+
+\begin{enumerate}
+  \item \textbf{ISTH major bleeding events} \citep{schulman2005}, as ascertained by blinded adjudication using prospective chart review against the ISTH 2005 criteria. Reported as count, cumulative incidence, and per-patient-day rate.
+  \item \textbf{Thromboembolic events}, prospectively ascertained: new symptomatic deep vein thrombosis or pulmonary embolism, arterial thromboembolism, circuit thrombosis in patients with extracorporeal circuits outside the ECMO exclusion, and thrombotic progression on imaging.
+  \item \textbf{4T score} \citep{lo2006}, computed daily from the platelet trajectory, timing of heparin exposure, documentation of new thrombosis, and other potential causes of thrombocytopenia.
+  \item \textbf{All-cause ICU mortality} through ICU discharge.
+  \item \textbf{ICU length of stay} (hours).
+  \item \textbf{Dose disagreement envelope:} per-patient-hour and per-patient distribution of $|d_t^{\mathrm{actual}} - \hat{d}_t^{\mathrm{policy}}|$ and its signed counterpart.
+\end{enumerate}
+
+\subsubsection{Other / Exploratory Outcomes}
+
+\begin{itemize}
+  \item Time out of range in the hypocoagulable direction (aPTT $>$ 100s).
+  \item Time out of range in the hypercoagulable direction (aPTT $<$ 60s).
+  \item Number of aPTT measurements per patient.
+  \item Number of protocol-compliant versus protocol-deviating clinician dose decisions.
+  \item Lab-ordering cadence: comparison between shadow policy's lab-ordering actions and clinician's actual aPTT draw cadence.
+\end{itemize}
+
+\subsection{Participant Timeline (SPIRIT item 13)}
+
+\begin{longtable}{@{}p{3.5cm}p{5cm}p{6.5cm}@{}}
+\toprule
+\textbf{Timepoint} & \textbf{Event} & \textbf{Data captured / action} \\
+\midrule
+\endhead
+$T_{-24}$ to $T_0$ & Pre-enrollment screening & Eligibility check, baseline aPTT, platelet count, weight, CrCl, indication for heparin \\
+$T_0$ (heparin start) & Enrollment & Automated enrollment into the registry; shadow policy begins producing recommendations \\
+$T_0 \to T_{\mathrm{discontinuation}}$ & Active silent deployment & Continuous capture of clinician dose orders, lab draws, lab results, policy recommendations, events \\
+Every 24h & Daily safety sweep & Automated 4T score update, bleeding/thrombosis ascertainment trigger check \\
+$T_{\mathrm{discontinuation}}$ & End of heparin infusion & Finalize per-patient primary outcome computation at locked database snapshot \\
+ICU discharge / death & End of ICU stay & Finalize secondary outcomes (LOS, mortality, event adjudication queue) \\
+Hospital discharge & Administrative closeout & Administrative data pull for final event adjudication \\
+\bottomrule
+\end{longtable}
+
+\subsection{Sample Size (SPIRIT item 14)}
+\label{sec:sample_size}
+
+\paragraph{Primary-endpoint non-inferiority calculation.}
+
+The primary outcome, Rosendaal TTR, is analyzed as a within-patient paired comparison between the actual-care TTR and the counterfactual shadow-policy TTR. The sample-size calculation below is conservative: it treats the two TTR values as if drawn from independent samples (ignoring the positive within-patient correlation), which inflates the required $n$ relative to a paired design and therefore provides a margin of safety.
+
+\begin{itemize}
+  \item Baseline TTR (actual care, heparin): 55\%, consistent with Nemati et al.\ \citep{nemati2016} and the wider retrospective ICU anticoagulation literature.
+  \item Standard deviation of TTR across patients: $\sigma = 22$ percentage points (representative of published distributions in adult ICU heparin cohorts).
+  \item Non-inferiority margin: $\delta = 10$ percentage points (chosen by the investigator team and DSMB to represent the largest clinically tolerable absolute decrement in TTR that would still be compatible with future deployment consideration).
+  \item One-sided alpha: $\alpha = 0.025$.
+  \item Power: $1 - \beta = 0.80$.
+\end{itemize}
+
+The required $n$ per arm under the standard one-sided non-inferiority formula
+
+\begin{equation}
+  n = \frac{2 \sigma^2 (z_{1-\alpha} + z_{1-\beta})^2}{\delta^2}
+\end{equation}
+
+evaluates to $n \approx 2 \cdot (22)^2 \cdot (1.96 + 0.84)^2 / 10^2 \approx 77$ per arm, i.e., $\approx 77$ paired patient observations under the assumption of independence. Accounting for: (a) the paired structure (conservatively reducing required $n$ by perhaps 30--40\% but we ignore this credit); (b) the 15--20\% loss to primary-outcome computation from brief or interrupted infusions; and (c) the planned interim analyses at $n=100$ and $n=250$ (Section~\ref{sec:monitoring}) with associated alpha spending, we plan enrollment of \textbf{350 patients} with protocol authority to extend enrollment to 500 if pre-specified futility boundaries are not yet crossed.
+
+The lower bound of the enrollment target, 200, is set by the requirement that the second interim analysis have been performed with the DSMB concluding continuation.
+
+\subsection{Recruitment (SPIRIT item 15)}
+
+Because this is an observational silent deployment with a waiver of individual consent (Section~\ref{sec:ethics}), there is no active recruitment. Every eligible patient-ICU-encounter during the enrollment window is automatically enrolled upon initiation of UFH under the institutional protocol, subject to the site's opt-out-on-file mechanism where applicable. Patients and families are informed of the institution's general research program and opt-out mechanism through the site's standard Notice of Privacy Practices.
+
+\subsection{Data Collection, Management, and Analysis}
+\label{sec:data}
+
+\subsubsection{Data Collection Methods (SPIRIT items 18a--18b)}
+
+Data will be extracted from the partner site's EHR via its FHIR R4 endpoint. The computational partner provides the decision-support system (DSS) harness previously described in \citep{hemosim2026}. The DSS harness:
+
+\begin{itemize}
+  \item Authenticates against the site's FHIR endpoint using an OAuth 2.0 SMART-on-FHIR backend-services flow scoped to the specific patient cohort and data types required.
+  \item Pulls \texttt{MedicationAdministration}, \texttt{Observation} (aPTT, PT/INR, platelets, creatinine, hemoglobin), \texttt{Condition}, \texttt{Encounter}, and \texttt{Patient} resources on a near-real-time polling cadence or via a site-configured FHIR Subscription.
+  \item Computes the shadow policy recommendation at each trigger event and writes the recommendation together with the input observation vector into the research database.
+  \item Does \emph{not} write back to the EHR.
+\end{itemize}
+
+A detailed data-element mapping table from EHR fields to protocol variables is maintained in the Manual of Operations and locked prior to enrollment.
+
+\subsubsection{Data Management}
+
+\begin{itemize}
+  \item \textbf{Storage.} The research database is hosted within the partner site's HIPAA-compliant computing enclave. A minimum-necessary deidentified mirror is synchronized nightly to the computational partner's HIPAA-covered cloud partition for analysis.
+  \item \textbf{Encryption.} All data are encrypted at rest (AES-256) and in transit (TLS 1.2 or greater).
+  \item \textbf{Access control.} Access is granted role-by-role on a least-privilege basis, auditable through the enclave's access logs. Access logs are retained for the duration of the study plus seven years.
+  \item \textbf{Deidentification.} The mirrored analysis copy replaces the 18 HIPAA identifiers with a study-specific random patient ID. A cross-walk linking random IDs to medical record numbers is maintained at the site only, never transmitted off-site, and destroyed seven years after study completion.
+  \item \textbf{Retention.} Source data and analysis datasets are retained for seven years from the date of the final study report or as required by applicable local, state, or federal regulations---whichever is longer.
+  \item \textbf{Data quality assurance.} Automated range checks, duplicate-detection, and lab-plausibility filters run on every nightly load. Manual audits of random 5\% samples are performed quarterly by the study coordinator.
+\end{itemize}
+
+\subsection{Statistical Methods (SPIRIT items 20a--20c)}
+\label{sec:stats}
+
+\subsubsection{Primary Analysis}
+
+The primary analysis will follow an intention-to-monitor principle: every enrolled patient for whom the primary outcome can be computed is included regardless of protocol deviations in the care arm. The primary test is a one-sided non-inferiority test of the within-patient paired difference
+
+\begin{equation}
+  \Delta_i = \mathrm{TTR}_i^{\mathrm{policy}} - \mathrm{TTR}_i^{\mathrm{actual}}
+\end{equation}
+
+against the null $H_0: \mathbb{E}[\Delta_i] \leq -10$ percentage points. The test statistic is the one-sided 97.5\% confidence interval lower bound for $\mathbb{E}[\Delta_i]$, computed with a non-parametric bootstrap (10{,}000 resamples) to avoid normality assumptions, and non-inferiority is declared if this lower bound exceeds $-10$ percentage points.
+
+\subsubsection{Counterfactual TTR Computation}
+
+For each patient, the counterfactual aPTT trajectory under the policy's recommended doses is computed by:
+\begin{enumerate}
+  \item Fitting that patient's heparin PK/PD parameters (clearance, volume of distribution, aPTT response slope) to the observed aPTT trajectory using the \texttt{hemosim} calibration harness (\citep{hemosim2026}, \texttt{mimic\_calibration.py}).
+  \item Simulating the aPTT trajectory forward under the policy's recommended infusion rates using these patient-specific parameters.
+  \item Computing Rosendaal TTR on the simulated trajectory with the same target range used in the actual-care analysis.
+\end{enumerate}
+
+\subsubsection{Sensitivity Analyses}
+
+Sensitivity analyses for PK/PD parameter uncertainty will include:
+\begin{itemize}
+  \item A per-patient PK/PD parameter bootstrap, re-computing counterfactual TTR across the parameter uncertainty envelope.
+  \item Best-case / worst-case bounding: re-running the analysis with PK/PD parameters at the 5th and 95th percentiles of each patient's fit posterior.
+  \item A ``tipping-point'' analysis: how much the counterfactual PK/PD parameters would have to systematically deviate (in the direction favoring the policy) for the non-inferiority conclusion to flip.
+\end{itemize}
+
+\subsubsection{Subgroup Analyses}
+
+Pre-specified subgroup analyses will be performed for:
+\begin{itemize}
+  \item Renal function: CrCl $<$ 30, 30--60, 60--90, $>$ 90 mL/min.
+  \item Body weight: $<$ 70 kg, 70--100 kg, $>$ 100 kg.
+  \item Indication: venous thromboembolism, acute coronary syndrome, atrial fibrillation with rapid ventricular response, other.
+  \item Age: 18--50, 51--65, 66--80, $>$ 80 years.
+  \item Sex and self-reported race/ethnicity, for equity reporting per NIH policy.
+\end{itemize}
+
+Subgroup analyses are considered hypothesis-generating and are not part of the primary non-inferiority inference.
+
+\subsubsection{Missing Data}
+
+Patients with infusion duration $<$ 12 hours (too short for a meaningful TTR estimate) are excluded from the primary analysis and reported descriptively in the CONSORT flow (Appendix~B). Missing individual aPTT measurements are handled natively by the Rosendaal method. No imputation of simulated aPTT values is permitted in the actual-care arm.
+
+\subsubsection{Safety Analysis}
+
+Secondary safety outcomes (major bleeding, thromboembolic events, HIT) are reported as crude event counts and cumulative-incidence estimates. The counterfactual bleed-proximity analysis reports, for each major bleeding event, the signed disagreement $\hat{d}_t^{\mathrm{policy}} - d_t^{\mathrm{actual}}$ averaged over the 24 hours preceding the event. A pre-specified criterion for a safety signal is that in $>5\%$ of major bleeds the policy would have recommended a higher dose than clinician care in that 24-hour window. This criterion feeds the DSMB stopping rule below.
+
+\subsection{Monitoring (SPIRIT items 21, 22)}
+\label{sec:monitoring}
+
+\subsubsection{Data Safety Monitoring Board}
+
+An independent Data Safety Monitoring Board (DSMB) will be convened prior to study initiation. Composition:
+\begin{itemize}
+  \item One senior critical-care physician (Chair), independent of the partner site and the computational partner.
+  \item One clinical pharmacologist or anticoagulation-specialist PharmD.
+  \item One biostatistician with experience in observational device studies.
+  \item One patient-safety or bioethics representative.
+\end{itemize}
+
+DSMB members must be free of financial or professional conflicts of interest with the sponsor, the computational partner, or the site. A DSMB Charter will be executed prior to the first DSMB meeting and appended to the Manual of Operations as Appendix~C.
+
+\subsubsection{Interim Analyses}
+
+Interim analyses are scheduled at $n=100$ and $n=250$ enrolled patients with computable primary outcomes. At each interim, the DSMB reviews:
+\begin{itemize}
+  \item Cumulative incidence of major bleeding and thromboembolic events under actual care.
+  \item The counterfactual bleed-proximity analysis (Section~\ref{sec:stats}).
+  \item The distribution of dose disagreement.
+  \item Any suspected unanticipated serious adverse events (SUSARs), noting that because care is clinician-directed the standard adverse-event relationship is to heparin as a drug, not to a study intervention.
+  \item Data quality and protocol adherence.
+\end{itemize}
+
+Alpha spending for the primary non-inferiority test follows an O'Brien--Fleming-like boundary partitioned across the two interim looks and the final analysis; the biostatistician will pre-register the explicit boundary in the Statistical Analysis Plan.
+
+\subsubsection{Stopping Rules}
+
+The DSMB may recommend stopping or pausing the silent deployment on any of the following:
+\begin{itemize}
+  \item \textbf{Primary safety signal.} In the counterfactual bleed-proximity analysis, the policy would have recommended a higher dose than clinician care in the 24 hours preceding $>5\%$ of observed major bleeding events, with a one-sided $97.5\%$ confidence-interval lower bound above $5\%$. (Informally: ``if the policy had been in control, would major bleeding have been $\geq$ 5 percentage points worse?'')
+  \item \textbf{Futility.} Conditional power for demonstrating non-inferiority at final analysis falls below 10\%.
+  \item \textbf{Data integrity.} Systematic data-quality failure that renders the primary outcome uninterpretable.
+  \item \textbf{External evidence.} Publication of external prospective evidence materially changing the risk/benefit assessment.
+\end{itemize}
+
+The DSMB's recommendations are advisory to the sponsor. The sponsor holds ultimate authority to pause or terminate the study and must report such decisions to the IRB within the timelines specified in the IRB's policies.
+
+\subsubsection{Auditing (SPIRIT item 23)}
+
+The sponsor's research compliance office will conduct an independent audit of study records at approximately the midpoint of enrollment. Audit scope: verification of eligibility determinations, completeness of primary-endpoint ascertainment on a random 5\% sample of patients, adherence to the silent-deployment firewall (zero policy-to-EHR writebacks), and data-access-log review.
+
+% ============================================================================
+% 5. ETHICS AND DISSEMINATION (SPIRIT items 24-33)
+% ============================================================================
+\section{Ethics and Dissemination}
+\label{sec:ethics}
+
+\subsection{Research Ethics Approval (SPIRIT item 24)}
+
+This protocol will be submitted to the University of California San Diego Human Research Protections Program (UCSD HRPP) for review and approval prior to any study-related activity. Protocol identifier: \textcolor{red}{[PLACEHOLDER --- HRP-XXXX]}. The study will not commence until a favorable opinion has been received.
+
+\subsection{Protocol Amendments (SPIRIT item 25)}
+
+Any protocol amendment will be submitted to the IRB, DSMB, and the ClinicalTrials.gov registry before implementation. Substantive amendments that affect the eligibility criteria, outcomes, stopping rules, or the locked RL policy artifact will be escalated as major amendments.
+
+\subsection{Consent and Waiver (SPIRIT item 26a)}
+
+A waiver of individual informed consent is requested under 45 CFR 46.116(f), as the study meets all four waiver criteria:
+\begin{enumerate}
+  \item The research involves no more than minimal risk to the subjects (patient care is unmodified).
+  \item The research could not practicably be carried out without the waiver (real-time silent concordance data cannot be obtained from a consenting subset without selection bias that invalidates the primary endpoint).
+  \item The waiver will not adversely affect the rights and welfare of the subjects (there is no behavioral modification, physical intervention, or disclosure of novel protected health information beyond routine clinical care).
+  \item Whenever appropriate, the subjects will be provided with pertinent information after participation (a plain-language summary of the study findings will be made available via the site's public research page after primary manuscript publication).
+\end{enumerate}
+
+Consistent with 42 CFR Part 11 where applicable (as it governs substance-use treatment records, not directly invoked here, but cited for completeness of regulatory-review awareness), we commit to safeguarding any records that may incidentally be associated with sensitive conditions.
+
+\subsection{Ancillary and Post-Trial Care (SPIRIT item 27)}
+
+Not applicable: no intervention is applied. All enrolled patients receive the site's standard post-ICU care.
+
+\subsection{Confidentiality (SPIRIT item 28)}
+
+All identifiable data remain within the site enclave as described in Section~\ref{sec:data}. The computational partner's analysis copy contains no direct identifiers. The study team will not disclose participant identities except as required by law.
+
+\subsection{Access to Data (SPIRIT item 29)}
+
+The PI, study biostatistician, and study coordinator have access to the final dataset. DSMB members have access to interim data under the DSMB Charter. No contractual agreement limits the PI's access to, or ability to publish, the final data.
+
+\subsection{Declaration of Interests (SPIRIT item 28b)}
+
+The computational co-investigator (Hass Dhia) is the author of the \texttt{hemosim} platform and the trainer of the PPO policy under evaluation. This is declared as a potential intellectual conflict of interest and will be managed by: (i) the PI and study biostatistician holding final authority over the statistical analysis plan and manuscript; (ii) the computational co-investigator being masked to interim safety analyses until the DSMB releases them; and (iii) explicit disclosure in all manuscripts and registry entries.
+
+Other investigators will disclose all relevant financial and non-financial interests per the site's conflict-of-interest policy prior to study initiation.
+
+\subsection{Dissemination Policy (SPIRIT item 31a--31c)}
+
+Regardless of outcome, the primary manuscript will be submitted within 12 months of final database lock, targeting \emph{The Lancet Digital Health} or \emph{NEJM AI} as preferred venues, and a peer-reviewed critical care or anticoagulation journal as the fallback. The manuscript will follow CONSORT-AI extensions where applicable. Authorship will follow the ICMJE criteria. The full Statistical Analysis Plan will be made publicly available at the time of first enrollment through the ClinicalTrials.gov registry's document attachments feature, and a summary of results will be posted to ClinicalTrials.gov within 12 months of study completion per NIH policy. Code and deidentified analysis datasets will be released under an open license to the extent permitted by the site's Data Use Agreement.
+
+% ============================================================================
+% 6. APPENDICES
+% ============================================================================
+\section{Appendices}
+
+\subsection{Appendix A. Statistical Analysis Plan Outline}
+
+\begin{enumerate}
+  \item Preamble, versioning, and signatories.
+  \item Study design and objectives (cross-reference to main protocol).
+  \item Definition of the analysis populations (intention-to-monitor, per-computable, safety).
+  \item Primary endpoint definition and computation, including the Rosendaal implementation pseudocode \citep{rosendaal1993}.
+  \item Counterfactual TTR computation: PK/PD calibration, forward simulation, bounds.
+  \item Primary hypothesis test: one-sided non-inferiority with 10-percentage-point margin, bootstrap confidence interval, alpha-spending partition across interim looks.
+  \item Secondary endpoints: event definitions, adjudication workflow, Poisson / negative-binomial models where appropriate.
+  \item Sensitivity analyses: PK/PD parameter envelope, tipping-point, alternative target ranges.
+  \item Subgroup analyses: pre-specified list with correction for multiple comparisons.
+  \item Missing-data handling rules.
+  \item Interim analysis report templates and DSMB deliverables.
+  \item Final analysis report table and figure shells.
+  \item Reproducibility: code repository, container image hash, data lineage manifest.
+  \item Change-control log.
+\end{enumerate}
+
+\subsection{Appendix B. CONSORT Flow Diagram Template}
+
+\begin{center}
+\fbox{\parbox{0.90\textwidth}{
+\textbf{Enrollment flow (prospective, populated at analysis time):}
+\begin{enumerate}
+  \item[] ICU heparin infusion starts during study window: $N_1$
+  \item[] Excluded at eligibility check: $N_2$ (with reason breakdown)
+  \item[] Enrolled: $N_3 = N_1 - N_2$
+  \item[] Primary outcome computable (infusion $\geq$ 12h, complete aPTT trajectory, PK/PD fit converged): $N_4$
+  \item[] Primary analysis population: $N_4$
+  \item[] Safety analysis population: $N_3$
+\end{enumerate}
+
+\textbf{Outcomes table shell (populated at analysis time):}
+\begin{itemize}
+  \item TTR actual care: mean (SD), median (IQR)
+  \item TTR counterfactual policy: mean (SD), median (IQR)
+  \item Paired within-patient $\Delta$: mean (95\% CI via bootstrap)
+  \item Non-inferiority test: $H_0$ rejected / not rejected, with CI
+  \item ISTH major bleeds: $n$ (cumulative incidence)
+  \item Thromboembolic events: $n$ (cumulative incidence)
+  \item 4T $\geq$ 4 incidence: $n$
+  \item ICU mortality: $n$ (\%)
+  \item ICU LOS: median (IQR)
+\end{itemize}
+}}
+\end{center}
+
+\subsection{Appendix C. DSMB Charter Outline}
+
+Composition; conflict-of-interest attestations; meeting cadence; review inputs; stopping rules; reporting chain; confidentiality of unmasked interim data; dissolution.
+
+\subsection{Appendix D. Manual of Operations (referenced; separate document)}
+
+Site-specific nomogram; aPTT draw cadence; EHR field-to-protocol-variable mapping; FHIR endpoint configuration; research-database schema; policy artifact SHA-256; access-control matrix; incident-response playbook.
+
+% ============================================================================
+% REFERENCES
+% ============================================================================
+\section*{References}
+\begin{thebibliography}{99}
+
+\bibitem{chan2013}
+Chan AW, Tetzlaff JM, Altman DG, Laupacis A, G{\o}tzsche PC, Krle\v{z}a-Jeri\'c K, et al.
+SPIRIT 2013 statement: defining standard protocol items for clinical trials.
+\emph{BMJ.} 2013;346:e7586. doi:10.1136/bmj.e7586.
+
+\bibitem{hamberg2007}
+Hamberg AK, Dahl ML, Barban M, Scordo MG, Wadelius M, Pengo V, Padrini R, Jonsson EN.
+A PK--PD model for predicting the impact of age, CYP2C9, and VKORC1 genotype on individualization of warfarin therapy.
+\emph{Clinical Pharmacology \& Therapeutics.} 2007;81(4):529--538.
+
+\bibitem{hemosim2026}
+Dhia H.
+\texttt{hemosim}: Gymnasium environments for reinforcement learning in hemostasis and anticoagulation management (v2).
+Smart Technology Investments Research Institute, 2026. Companion software package and manuscript.
+
+\bibitem{hirsh2001}
+Hirsh J, Anand SS, Halperin JL, Fuster V.
+Guide to anticoagulant therapy: heparin.
+\emph{Circulation.} 2001;103(24):2994--3018.
+
+\bibitem{hockin2002}
+Hockin MF, Jones KC, Everse SJ, Mann KG.
+A model for the stoichiometric regulation of blood coagulation.
+\emph{Journal of Biological Chemistry.} 2002;277(21):18322--18333.
+
+\bibitem{komorowski2018}
+Komorowski M, Celi LA, Badawi O, Gordon AC, Faisal AA.
+The Artificial Intelligence Clinician learns optimal treatment strategies for sepsis in intensive care.
+\emph{Nature Medicine.} 2018;24(11):1716--1720. doi:10.1038/s41591-018-0213-5.
+
+\bibitem{lo2006}
+Lo GK, Juhl D, Warkentin TE, Sigouin CS, Eichler P, Greinacher A.
+Evaluation of pretest clinical score (4 T's) for the diagnosis of heparin-induced thrombocytopenia in two clinical settings.
+\emph{Journal of Thrombosis and Haemostasis.} 2006;4(4):759--765.
+
+\bibitem{mueck2007}
+M\"uck W, Becka M, Kubitza D, Voith B, Zuehlsdorf M.
+Population model of the pharmacokinetics and pharmacodynamics of rivaroxaban in healthy subjects.
+\emph{International Journal of Clinical Pharmacology and Therapeutics.} 2007;45(6):335--344.
+
+\bibitem{nemati2016}
+Nemati S, Ghassemi MM, Clifford GD.
+Optimal medication dosing from suboptimal clinical examples: a deep reinforcement learning approach.
+In: \emph{Proceedings of the IEEE Engineering in Medicine and Biology Society (EMBC).} 2016;2978--2981. doi:10.1109/EMBC.2016.7591355.
+
+\bibitem{raghu2017}
+Raghu A, Komorowski M, Celi LA, Szolovits P, Ghassemi M.
+Continuous state-space models for optimal sepsis treatment---a deep reinforcement learning approach.
+In: \emph{Proceedings of Machine Learning for Healthcare (MLHC).} 2017;147--163.
+
+\bibitem{raschke1993}
+Raschke RA, Reilly BM, Guidry JR, Fontana JR, Srinivas S.
+The weight-based heparin dosing nomogram compared with a ``standard care'' nomogram: a randomized controlled trial.
+\emph{Annals of Internal Medicine.} 1993;119(9):874--881.
+
+\bibitem{rosendaal1993}
+Rosendaal FR, Cannegieter SC, van der Meer FJ, Bri\"et E.
+A method to determine the optimal intensity of oral anticoagulant therapy.
+\emph{Thrombosis and Haemostasis.} 1993;69(3):236--239.
+
+\bibitem{schulman2005}
+Schulman S, Kearon C, Subcommittee on Control of Anticoagulation of the Scientific and Standardization Committee of the International Society on Thrombosis and Haemostasis.
+Definition of major bleeding in clinical investigations of antihemostatic medicinal products in non-surgical patients.
+\emph{Journal of Thrombosis and Haemostasis.} 2005;3(4):692--694.
+
+\end{thebibliography}
+
+\end{document}
