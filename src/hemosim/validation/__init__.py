@@ -11,6 +11,11 @@ Modules:
 
 from __future__ import annotations
 
+from hemosim.validation.mimic_calibration import (
+    CalibrationResult,
+    MIMICHeparinCohort,
+    calibrate_heparin_pkpd,
+)
 from hemosim.validation.published_calibration import (
     BENCHMARKS,
     FitResult,
@@ -22,8 +27,11 @@ from hemosim.validation.published_calibration import (
 
 __all__ = [
     "BENCHMARKS",
+    "CalibrationResult",
     "FitResult",
+    "MIMICHeparinCohort",
     "PublishedBenchmark",
+    "calibrate_heparin_pkpd",
     "fit_heparin_pkpd",
     "fit_warfarin_pkpd",
     "validate_doac_rates",
