@@ -112,6 +112,11 @@ class WarfarinPKPD:
         # State vector
         self.state = np.zeros(self.N_STATES)
         self.state[4] = 1.0  # vitamin K cycle fully active
+        # Transit compartments must equilibrate to baseline INR — otherwise
+        # they start at 0 and drag the observed INR downward during the
+        # first timesteps, causing a spurious INR < 1.0 termination.
+        self.state[5] = self.baseline_inr
+        self.state[6] = self.baseline_inr
         self.state[7] = self.baseline_inr  # baseline INR
 
     def step(self, dose_mg: float, dt_hours: float = 24.0) -> np.ndarray:
@@ -215,5 +220,8 @@ class WarfarinPKPD:
         """Reset model to initial (drug-free) state."""
         self.state = np.zeros(self.N_STATES)
         self.state[4] = 1.0  # vitamin K cycle active
+        # Transit compartments at baseline INR (see __init__ for rationale)
+        self.state[5] = self.baseline_inr
+        self.state[6] = self.baseline_inr
         self.state[7] = self.baseline_inr
         return self.state.copy()
