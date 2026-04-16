@@ -21,3 +21,10 @@ register(
     id="hemosim/DICManagement-v0",
     entry_point="hemosim.envs.dic_management:DICManagementEnv",
 )
+
+# POMDP-formulated variants (ISC-5). Lab ordering is an explicit action;
+# observations are delayed noisy readings, not ground truth.
+register(
+    id="hemosim/HeparinInfusion-POMDP-v0",
+    entry_point="hemosim.envs.heparin_infusion_pomdp:HeparinInfusionPOMDPEnv",
+)
