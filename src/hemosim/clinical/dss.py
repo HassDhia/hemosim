@@ -51,9 +51,12 @@ Clinical references
   Thrombosis, 9th ed: ACCP Evidence-Based Clinical Practice
   Guidelines.* Chest 2012;141(2 Suppl):e152S-e184S. (Warfarin INR
   management and bleeding definitions.)
-* UCSD Medical Center Antithrombotic Stewardship Committee protocols
-  (institutional heparin nomogram; platelet monitoring thresholds
-  informing ISC-11 bounds).
+* Hirsh J, Raschke R. *Heparin and low-molecular-weight heparin: the
+  Seventh ACCP Conference on Antithrombotic and Thrombolytic
+  Therapy.* Chest 2004;126(3 Suppl):188S-203S. (Platelet-monitoring
+  thresholds and absolute-dose guardrails used in ISC-11 derive from
+  general antithrombotic stewardship principles in Holbrook 2012 +
+  Warkentin 2003, not from any specific partner-site protocol.)
 """
 
 from __future__ import annotations

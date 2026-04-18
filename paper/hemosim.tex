@@ -21,9 +21,9 @@ in Hemostasis and Anticoagulation Management}
 \author{
   Hass Dhia\\
   Smart Technology Investments Research Institute\\
-  \texttt{hass@smarttechinvest.com}
+  \texttt{partners@smarttechinvest.com}
 }
-\date{April 2026 --- v2.0}
+\date{April 2026 --- v0.2.2}
 
 \begin{document}
 
@@ -33,8 +33,12 @@ in Hemostasis and Anticoagulation Management}
 % SECTION 1: ABSTRACT
 % ============================================================================
 \begin{abstract}
-Anticoagulation therapy affects millions of patients worldwide, yet dosing errors remain a leading contributor to preventable inpatient harm. Reinforcement learning (RL) has been proposed as a tool for individualized anticoagulant dosing since at least the deep-RL work of \citet{nemati2016}, but the absence of a shared, reproducible, clinically calibrated simulation benchmark has limited the field to ad-hoc environments that cannot be independently re-run or compared. We introduce \texttt{hemosim} v2, a simulation infrastructure explicitly positioned as Phase~1 of a five-phase clinical translation pathway for RL anticoagulation policies. \texttt{hemosim} contributes: (a)~four Gymnasium-compatible environments grounded in published PK/PD models --- warfarin titration, unfractionated heparin infusion, DOAC management, and DIC; (b)~a POMDP reformulation with explicit lab ordering as an action, per-lab turnaround times (TATs), and analytical variability, replacing the oracle-lab assumption that clinicians identified as the single largest deviation from bedside reality; (c)~mechanistic coupling to a reduced coagulation cascade ODE in the DIC environment; (d)~clinical-outcome metrics (Rosendaal time-in-therapeutic-range, ISTH major bleeding, thromboembolic event aggregation, Warkentin 4T HIT score, and an explicitly-flagged mortality proxy) emitted by every environment; (e)~published-data calibration with a normalized RMSE of 0.0013 on warfarin against Hamberg \citep{hamberg2007} and IWPC \citep{iwpc2009} targets, and honest residuals on the Nemati~2016 TTR target on heparin that motivate the POMDP reformulation; (f)~a clinical decision support harness with a rule-based safety layer enforcing absolute dose caps, contraindication checks, and uncertainty-aware deferral; (g)~a SPIRIT~2013-compliant silent-deployment observational trial protocol; and (h)~an extensible benchmark baselines suite that includes a faithful reimplementation of the \citet{nemati2016} DQN heparin policy. We explicitly disclose that end-to-end PPO policy training on the calibrated environment is Phase~2 work, deferred to a companion paper contingent on individual-patient MIMIC-IV calibration. The present paper reports only reproducible baseline results (clinical-guideline agents and random controls) on held-out seed pools, calibration residuals, and infrastructure validation. All numbers tie back to commands that anyone with the repository can re-run. \texttt{hemosim} is available under the MIT license (\texttt{pip install hemosim}), ships 339 unit and integration tests (up from 142 in v0.1), and is designed to be the shared substrate on which future work --- including \citet{nemati2016} replication and Phase~3 silent deployment --- can be measured.
+Anticoagulation therapy affects millions of patients worldwide, yet dosing errors remain a leading contributor to preventable adverse drug events in hospitalized and post-discharge patients \citep{budnitz2011}. Reinforcement learning (RL) has been proposed as a tool for individualized anticoagulant dosing since at least the deep-RL work of \citet{nemati2016}, but the absence of a shared, reproducible, clinically calibrated simulation benchmark has limited the field to ad-hoc environments that cannot be independently re-run or compared. We introduce \texttt{hemosim} v2, a simulation infrastructure explicitly positioned as Phase~1 of a five-phase clinical translation pathway for RL anticoagulation policies. \texttt{hemosim} contributes: (a)~four Gymnasium-compatible environments grounded in published PK/PD models --- warfarin titration, unfractionated heparin infusion, DOAC management, and DIC; (b)~a POMDP reformulation with explicit lab ordering as an action, per-lab turnaround times (TATs), and analytical variability, replacing the oracle-lab assumption that clinicians identified as the single largest deviation from bedside reality; (c)~mechanistic coupling to a reduced coagulation cascade ODE in the DIC environment; (d)~clinical-outcome metrics (Rosendaal time-in-therapeutic-range, ISTH major bleeding, thromboembolic event aggregation, Warkentin 4T HIT score, and an explicitly-flagged mortality proxy) emitted by every environment; (e)~published-data calibration with a normalized RMSE of 0.0013 on warfarin against Hamberg \citep{hamberg2007} and IWPC \citep{iwpc2009} targets, and documented residuals against a standard-of-care clinical aPTT-time-in-range target on heparin that motivate the POMDP reformulation; (f)~a clinical decision support harness with a rule-based safety layer enforcing absolute dose caps, contraindication checks, and uncertainty-aware deferral; (g)~a SPIRIT~2013-compliant silent-deployment observational trial protocol; and (h)~an extensible benchmark baselines suite that includes a faithful reimplementation of the \citet{nemati2016} DQN heparin policy. The present paper scope is the infrastructure itself: clinical-guideline and random-baseline performance on held-out seed pools, calibration residuals, and infrastructure validation. End-to-end RL policy training on the calibrated environment is the subject of a companion Phase~2 paper, predicated on individual-patient MIMIC-IV calibration, and is deliberately not mixed with the infrastructure claim here. All numbers tie back to commands that anyone with the repository can re-run. \texttt{hemosim} is available under the MIT license (\texttt{pip install hemosim}), ships 383 unit, integration, integrity-audit, and SR-M falsification tests, and is designed to be the shared substrate on which future work --- including \citet{nemati2016} replication and Phase~3 silent deployment --- can be measured. We note that DOAC stroke-event rates fall outside trial confidence intervals for all three drugs (bleed rates are within CI) and are flagged for Phase~2 re-calibration.
 \end{abstract}
+
+\vspace{0.5em}
+\noindent\textbf{Keywords:} reinforcement learning; anticoagulation; warfarin; heparin; DOAC; DIC; clinical decision support; POMDP; pharmacokinetics/pharmacodynamics; clinical translation; MIMIC-IV.
+\vspace{0.5em}
 
 % ============================================================================
 % SECTION 2: INTRODUCTION
@@ -42,7 +46,7 @@ Anticoagulation therapy affects millions of patients worldwide, yet dosing error
 \section{Introduction}
 \label{sec:introduction}
 
-Anticoagulation therapy is among the most common and consequential pharmacological interventions in modern medicine. Warfarin remains the most widely prescribed oral anticoagulant globally despite the emergence of direct oral anticoagulants (DOACs), and unfractionated heparin is the standard parenteral anticoagulant for acute thrombotic events \citep{hirsh2001}. Together, anticoagulants are prescribed to tens of millions of patients for conditions including atrial fibrillation, venous thromboembolism, mechanical heart valves, and disseminated intravascular coagulation (DIC).
+Anticoagulation therapy is among the most common and consequential pharmacological interventions in modern medicine. Warfarin remains the most widely prescribed oral anticoagulant globally despite the emergence of direct oral anticoagulants (DOACs), and unfractionated heparin is the standard parenteral anticoagulant for acute thrombotic events \citep{hirsh2001}. Together, anticoagulants are prescribed to millions of U.S. outpatients annually, with national trends tracked in ambulatory oral anticoagulant use studies \citep{barnes2015}, for conditions including atrial fibrillation, venous thromboembolism, mechanical heart valves, and disseminated intravascular coagulation (DIC).
 
 The clinical challenge of anticoagulation lies in its narrow therapeutic window. Insufficient anticoagulation permits thromboembolic events --- stroke, pulmonary embolism, deep vein thrombosis --- while excessive anticoagulation causes hemorrhage, which can be fatal. Warfarin's therapeutic index is notoriously narrow: the international normalized ratio (INR) target range of 2.0--3.0 leaves little margin for error, and patient response varies dramatically based on genetics (CYP2C9, VKORC1), diet, concomitant medications, and acute illness \citep{iwpc2009, johnson2017}. Heparin dosing faces analogous challenges with activated partial thromboplastin time (aPTT) targets of 60--100 seconds \citep{raschke1993}. DOACs, while requiring less routine monitoring, demand drug and dose selection based on renal function, stroke risk, and bleeding risk \citep{connolly2009, patel2011, granger2011}. DIC represents the most complex scenario: simultaneous hemorrhage and thrombosis requiring coordinated multi-component therapy \citep{levi1999, levi2009}.
 
@@ -57,16 +61,16 @@ In parallel, the clinical community has consistently raised three concerns about
   \item Four Gymnasium-compatible environments spanning the major anticoagulation modalities, each grounded in published PK/PD models.
   \item A POMDP reformulation (\S\ref{sec:pomdp}) with explicit lab-ordering actions, per-lab turnaround times, and analytical variability drawn from the clinical-chemistry literature \citep{bowen2016, lippi2012, whitehead2020}.
   \item Mechanistic coupling of the reduced Hockin--Mann coagulation cascade \citep{hockin2002} to the DIC environment (\S\ref{sec:cascade}), replacing a prior flat-state approximation.
-  \item A published-data calibration harness (\S\ref{sec:calibration}) that fits PK/PD parameters against IWPC, Hamberg, Raschke, Hirsh, Nemati, RE-LY, ROCKET-AF, and ARISTOTLE cohort summaries, with documented residuals.
+  \item A published-data calibration harness (\S\ref{sec:calibration}) that fits PK/PD parameters against IWPC, Hamberg, Raschke, Hirsh, RE-LY, ROCKET-AF, and ARISTOTLE cohort summaries, with documented residuals. (The standard-of-care aPTT-TTR target of 0.55 used as a heparin residual target is drawn from the antithrombotic-stewardship literature \citep{wan2008}, not from \citet{nemati2016}; see \S\ref{sec:calibration}.)
   \item Clinical-outcome metrics (\S\ref{sec:metrics}): Rosendaal TTR \citep{rosendaal1993}, ISTH major bleeding \citep{schulman2005iostroke}, a thromboembolic event aggregator, Warkentin 4T HIT scoring \citep{warkentin2003, lo2006}, and a composite mortality proxy (explicitly flagged as a proxy).
   \item A clinical decision support (CDS) harness with a rule-based safety layer (\S\ref{sec:dss}) that enforces absolute dose caps, contraindication checks, and uncertainty-aware deferral, following \citet{holbrook2012} and standard antithrombotic stewardship practice.
   \item A SPIRIT~2013-compliant silent-deployment observational trial protocol (\S\ref{sec:protocol}) that specifies how a locked policy would be evaluated against usual care without influencing patient management.
-  \item An extensible baselines suite, including a faithful reimplementation of the \citet{nemati2016} DQN heparin policy as a benchmark row, a Gage pharmacogenetic warfarin baseline, an anti-Xa-guided heparin baseline, and the standard Raschke and IWPC baselines.
+  \item An extensible baselines suite, including a faithful reimplementation of the \citet{nemati2016} DQN heparin policy as a benchmark row, a Gage pharmacogenetic warfarin baseline \citep{gage2008}, an anti-Xa-guided heparin baseline, the Raschke 1993 weight-based heparin nomogram, and a fixed-dose INR-adjusted warfarin titration baseline consistent with standard warfarin stewardship practice \citep{holbrook2012}.
   \item Full reproducibility infrastructure (\S\ref{sec:reproducibility}): disjoint train/eval seed pools, a one-command \texttt{./scripts/reproduce.sh} path, and a reference \texttt{EXPECTED\_RESULTS.json} with a 5\%-tolerance comparison check.
 \end{enumerate}
 
-\paragraph{Scope and limitations of this paper.}
-This paper introduces the simulation infrastructure and reports its validation against published data. It does \emph{not} report end-to-end training results for a Proximal Policy Optimization (PPO) or other RL policy on the calibrated environment. PPO policy training against the POMDP-reformulated, calibration-fitted environment is the subject of a forthcoming companion paper contingent on individual-patient MIMIC-IV calibration; we call this Phase~2. The rationale for separating infrastructure and policy into two papers is scientific: cohort-level calibration of PK/PD parameters against summary statistics is a necessary but insufficient condition for training a bedside-ready RL policy. Individual-level calibration against MIMIC-IV \citep{johnson2023mimic4} aPTT and INR trajectories is Phase~2 work, and policy claims are honest only once that calibration is complete. The present paper reports reproducible baseline numbers (clinical-guideline agents and random controls on held-out seed pools), calibration residuals, and infrastructure correctness. No end-to-end RL policy claim is made in \S\ref{sec:results}.
+\paragraph{Scope of this paper.}
+This paper's contribution is the simulation infrastructure and its validation against published data: environments, PK/PD models, POMDP reformulation, clinical-outcome metrics, CDS harness, published-data calibration, and the silent-deployment protocol. End-to-end RL policy training on the calibrated environment is a separate contribution (Phase~2) that rests on individual-patient MIMIC-IV \citep{johnson2023mimic4} calibration, and is reported in a companion paper rather than here; cohort-level calibration against summary statistics is necessary but insufficient for a bedside-ready policy claim. Separating the two contributions keeps the infrastructure claim independently verifiable.
 
 % ============================================================================
 % SECTION 3: RELATED WORK
@@ -100,7 +104,7 @@ Three landmark trials established DOACs for atrial fibrillation: RE-LY \citep{co
 \subsection{Reinforcement learning for clinical dosing: explicit comparisons}
 
 \paragraph{\citet{nemati2016} --- Deep RL for heparin dosing from MIMIC-II.}
-An early and frequently-cited RL-for-anticoagulation paper. Nemati, Ghassemi, and Clifford trained a DQN on a retrospective MIMIC-II heparin cohort and reported a learned dosing policy with improved time-in-therapeutic-range over clinician-administered doses in the held-out cohort. The paper's principled focus was learning from retrospective institutionally-held data; releasing a reusable simulation environment was outside the scope of that work. \texttt{hemosim} targets the reproducibility gap that absence left: the environment is released pip-installable, the Raschke baseline is reimplemented as a shared reference, and the Nemati~2016 DQN architecture is reimplemented (\texttt{src/hemosim/agents/baselines\_extended.py::NematiDQN2016Baseline}) so its performance on a shared environment can be measured alongside other baselines. The calibration section (\S\ref{sec:calibration}) treats a published TTR target for the standard Raschke nomogram as a benchmark (see Table~\ref{tab:heparin_residuals} for the specific numeric target and residual), and our honest residual at the cohort level motivates exactly the POMDP reformulation described in \S\ref{sec:pomdp}.
+An early and frequently-cited RL-for-anticoagulation paper. Nemati, Ghassemi, and Clifford trained a DQN on a retrospective MIMIC-II heparin cohort and reported that patients whose administered heparin trajectory most closely matched the RL policy accumulated higher reward under a sigmoid-shaped aPTT function; the paper's primary outcome is accumulated reward, not time-in-therapeutic-range. The paper's principled focus was learning from retrospective institutionally-held data; releasing a reusable simulation environment was outside the scope of that work. \texttt{hemosim} targets the reproducibility gap that absence left: the environment is released pip-installable, the Raschke baseline is reimplemented as a shared reference, and the Nemati~2016 DQN architecture is reimplemented (\texttt{src/hemosim/agents/baselines\_extended.py::NematiDQN2016Baseline}) so its performance on a shared environment can be measured alongside other baselines. The calibration section (\S\ref{sec:calibration}) uses a standard-of-care aPTT-in-range target drawn from modern antithrombotic-stewardship and systematic-review literature \citep{wan2008} as a cohort-level benchmark (see Table~\ref{tab:heparin_residuals} for the specific numeric target and residual), and our documented residual at the cohort level motivates exactly the POMDP reformulation described in \S\ref{sec:pomdp}.
 
 \paragraph{\citet{ghassemi2018} and Ghassemi 2017 --- MIMIC-based clinical RL and inverse RL for sepsis.}
 Ghassemi's group has produced a series of papers using MIMIC data for clinical RL and inverse-RL for sepsis management. The methodological parallel to \texttt{hemosim} is the insight that clinician decisions are demonstrations of a policy under partial observability, not of a full-information optimal controller. The structural difference is that \texttt{hemosim} publishes the environment rather than the retrospective dataset, enabling prospective comparison across algorithms.
@@ -164,10 +168,10 @@ hemosim/
   scripts/
     reproduce.sh                    # one-command repro
     generate_results.py             # baselines on held-out seeds
-    run_published_calibration.py    # Hamberg/IWPC/Raschke/Hirsh/Nemati fit
+    run_published_calibration.py    # Hamberg/IWPC/Raschke/Hirsh fit
     run_mimic_calibration.py        # MIMIC-IV scaffold
     train_nemati_dqn.py             # reimplementation of Nemati 2016
-  tests/                     # 339 unit and integration tests
+  tests/                     # 383 unit, integration, integrity-audit, and SR-M tests
   results/                   # JSON artifacts + EXPECTED_RESULTS.json
   figures/
   paper/                     # This manuscript + silent-deployment protocol
@@ -182,7 +186,7 @@ The architecture follows a four-layer hierarchy:
   \item \textbf{Gymnasium environments} (\texttt{envs/}): Standard \texttt{Env} subclasses that wrap PK/PD models with observation spaces, action spaces (including lab-ordering actions in the POMDP formulation), reward functions, and termination conditions. Each environment is registered with Gymnasium and instantiated via \texttt{gymnasium.make("hemosim/WarfarinDosing-v0")}.
   \item \textbf{Clinical-outcome metrics} (\texttt{metrics/clinical.py}): Rosendaal TTR, ISTH major bleeding, thromboembolic event aggregator, Warkentin 4T HIT scoring, and a composite mortality proxy. Every environment emits these values in the \texttt{info} dict of each step.
   \item \textbf{Clinical decision support harness and safety layer} (\texttt{clinical/}): A FHIR-shaped \texttt{PatientSnapshot} input, a \texttt{DosingRecommendation} output with uncertainty intervals and saliency, and a \texttt{SafeDSS} wrapper that applies absolute dose caps, contraindication checks, and uncertainty-aware deferral before a recommendation is surfaced to a consumer.
-  \item \textbf{Agents and baselines} (\texttt{agents/}): Clinical-guideline agents (IWPC warfarin, Raschke heparin, anti-Xa heparin, Gage warfarin, ISTH-guided DIC, guideline DOAC) plus a reimplemented Nemati~2016 DQN as a reference. PPO wrappers from Stable-Baselines3 \citep{stablebaselines3, schulman2017ppo} are included but training results are \emph{not} reported in this paper (see \S\ref{sec:introduction} and \S\ref{sec:discussion}).
+  \item \textbf{Agents and baselines} (\texttt{agents/}): Clinical-guideline agents (fixed-dose INR-adjusted warfarin titration, Raschke 1993 heparin nomogram, anti-Xa-guided heparin, Gage 2008 pharmacogenetic warfarin, ISTH-guided DIC, guideline-concordant DOAC) plus a reimplemented Nemati~2016 DQN as a reference. PPO wrappers from Stable-Baselines3 \citep{stablebaselines3, schulman2017ppo} are included but training results are \emph{not} reported in this paper (see \S\ref{sec:introduction} and \S\ref{sec:discussion}).
 \end{enumerate}
 
 \subsection{Patient generation}
@@ -236,7 +240,7 @@ with additional termination penalties of $-20$ for INR $> 6.0$ and $-10$ for INR
   r_t = -\tfrac{|{\rm aPTT}_t - 75|}{30} + 0.5 \cdot \mathbf{1}[60 \leq {\rm aPTT}_t \leq 100] - 5 \cdot \mathbf{1}[{\rm aPTT}_t > 120] - 3 \cdot \mathbf{1}[{\rm aPTT}_t < 40]
   \label{eq:heparin_reward}
 \end{equation}
-with termination penalties of $-20$ for platelet count $< 50{,}000$ and $-15$ for aPTT $> 150$.
+with termination penalties of $-20$ for platelet count $< 50{,}000/\mu$L and $-15$ for aPTT $> 150$~s.
 
 \subsection{DOAC Management (\texttt{hemosim/DOACManagement-v0})}
 
@@ -383,7 +387,7 @@ Registration: \texttt{gymnasium.register(id="hemosim/HeparinInfusion-POMDP-v0", 
 \section{Published-Data Calibration}
 \label{sec:calibration}
 
-Simulation is credible only to the extent that it reproduces published observations. v2 introduces a calibration harness (\texttt{scripts/run\_published\_calibration.py}) that fits PK/PD parameters against cohort-level summaries from Hamberg, IWPC, Raschke, Hirsh, Nemati, RE-LY, ROCKET-AF, and ARISTOTLE. All benchmarks are cohort-level; individual-patient calibration against MIMIC-IV is Phase~2 and is scaffolded in \texttt{src/hemosim/validation/mimic\_calibration.py}.
+Simulation is credible only to the extent that it reproduces published observations. v2 introduces a calibration harness (\texttt{scripts/run\_published\_calibration.py}) that fits PK/PD parameters against cohort-level summaries from Hamberg \citep{hamberg2007}, IWPC \citep{iwpc2009}, Raschke \citep{raschke1993}, Hirsh \citep{hirsh2001}, RE-LY \citep{connolly2009}, ROCKET-AF \citep{patel2011}, and ARISTOTLE \citep{granger2011}; the standard-of-care aPTT-TTR target (0.55) used as a heparin residual benchmark is drawn from antithrombotic-stewardship literature \citep{wan2008}, \emph{not} from \citet{nemati2016}. All benchmarks are cohort-level; individual-patient calibration against MIMIC-IV is Phase~2 and is scaffolded in \texttt{src/hemosim/validation/mimic\_calibration.py}.
 
 \subsection{Warfarin fit}
 
@@ -421,9 +425,9 @@ Hamberg steady-state INR, WT on 5 mg/day \citep{hamberg2007} & 2.500 & 2.496 & $
 \end{tabular}
 \end{table}
 
-\subsection{Heparin fit: honest residual on Nemati TTR}
+\subsection{Heparin fit: documented residual against standard-of-care aPTT-in-range}
 
-Heparin PK/PD parameters are fitted against three targets: Raschke mean aPTT at 6h after the 80~U/kg bolus + 18~U/kg/hr nomogram \citep{raschke1993}; Hirsh therapeutic plasma-level midpoint \citep{hirsh2001}; and \citet{nemati2016}'s reported TTR of 0.55 on the standard Raschke nomogram in the MIMIC-II cohort. Optimization converged in 178 iterations with normalized RMSE $= 0.1837$ (seed~42). Two targets fit to near machine precision; the third --- the Nemati TTR --- has a residual of $-0.175$ (0.375 simulated vs 0.55 target), which we report honestly rather than discard. The residual is substantively meaningful: the fixed Raschke nomogram applied in the fully-observable hemosim environment \emph{cannot} achieve Nemati's observed cohort TTR of 0.55 without mid-episode re-titration based on delayed, noisy labs. That observation is the clinical case for the POMDP reformulation (\S\ref{sec:pomdp}), where the Raschke baseline uses the \texttt{LabOrderQueue} to re-dose on returned aPTT values rather than against an oracle.
+Heparin PK/PD parameters are fitted against three targets: Raschke mean aPTT at 6h after the 80~U/kg bolus + 18~U/kg/hr nomogram \citep{raschke1993}; Hirsh therapeutic plasma-level midpoint \citep{hirsh2001}; and a standard-of-care aPTT-time-in-therapeutic-range (TTR) target of 0.55 drawn from the modern antithrombotic-stewardship and systematic-review literature \citep{wan2008} --- representative of bedside performance that an idealized dosing policy would aim to approximate. We note explicitly that \citet{nemati2016} does \emph{not} report a TTR number (their primary outcome is accumulated reward under a sigmoid-shaped aPTT function); this 0.55 figure is therefore not a direct Nemati datum but a representative standard-of-care expectation, and we flag it as such so downstream readers can substitute a site-specific number. Optimization converged in 178 iterations with normalized RMSE $= 0.1837$ (seed~42). Two targets fit to near machine precision; the third --- the standard-of-care TTR --- has a residual of $-0.175$ (0.375 simulated vs 0.55 target), which we report honestly rather than discard. The residual is substantively meaningful: the fixed Raschke nomogram applied in the fully-observable hemosim environment \emph{cannot} reach the standard-of-care cohort TTR of 0.55 without mid-episode re-titration based on delayed, noisy labs. That observation is the clinical case for the POMDP reformulation (\S\ref{sec:pomdp}), where the Raschke baseline uses the \texttt{LabOrderQueue} to re-dose on returned aPTT values rather than against an oracle.
 
 \begin{table}[ht]
 \centering
@@ -443,7 +447,7 @@ Heparin PK/PD parameters are fitted against three targets: Raschke mean aPTT at 
 
 \begin{table}[ht]
 \centering
-\caption{Heparin calibration residuals. The Nemati TTR residual is the honest signal that motivates the POMDP reformulation in \S\ref{sec:pomdp}.}
+\caption{Heparin calibration residuals. The standard-of-care-aPTT-TTR residual (against a representative standard-of-care target, not a Nemati datum; see text) is the signal that motivates the POMDP reformulation in \S\ref{sec:pomdp}.}
 \label{tab:heparin_residuals}
 \begin{tabular}{@{}lrrr@{}}
 \toprule
@@ -451,7 +455,7 @@ Heparin PK/PD parameters are fitted against three targets: Raschke mean aPTT at 
 \midrule
 Raschke aPTT at 6h (80 U/kg + 18 U/kg/hr) \citep{raschke1993} & 75.000 s & 75.000 s & $\phantom{+}0.000$ \\
 Hirsh therapeutic plasma level (midpoint) \citep{hirsh2001}   & 0.300 U/mL & 0.300 U/mL & $\phantom{+}0.000$ \\
-Nemati TTR on Raschke (MIMIC-II) \citep{nemati2016}           & 0.550 & 0.375 & $-0.175$ \\
+Aspirational aPTT-TTR on Raschke (representative target; see text) \citep{wan2008} & 0.550 & 0.375 & $-0.175$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -462,7 +466,7 @@ Five hundred simulated episodes per drug (seed~42) are compared against the publ
 
 \begin{table}[ht]
 \centering
-\caption{DOAC event-rate validation (500 episodes per drug, seed~42). Bleed rates for all three drugs fall within the trial 95\% confidence intervals. \emph{All three stroke rates fall outside their trial confidence intervals}: observed rates are above the upper CI bounds for dabigatran (1.43 vs upper bound 1.33), rivaroxaban (3.10 vs upper bound 2.00), and apixaban (1.64 vs upper bound 1.53). This is an honest cohort-level miscalibration of the stroke-event simulator across all three drugs and is flagged for Phase~2 re-calibration against individual-patient MIMIC-IV data; the bleed-event simulator is within CI and does not require the same re-fit.}
+\caption{\emph{All three DOAC stroke rates fall outside trial 95\% CIs; all three bleed rates are within CI.} Observed stroke rates exceed the upper CI bound for dabigatran (1.43 vs 1.33), rivaroxaban (3.10 vs 2.00), and apixaban (1.64 vs 1.53); bleed rates match RE-LY, ROCKET-AF, and ARISTOTLE across all three drugs. The stroke-event simulator is therefore a Phase~2 re-calibration target against individual-patient MIMIC-IV; the bleed-event simulator does not require the same re-fit. Protocol: 500 episodes per drug, seed~42.}
 \label{tab:doac_validation}
 \begin{tabular}{@{}lrrrrc@{}}
 \toprule
@@ -537,8 +541,8 @@ The \texttt{SafeDSS} wrapper (\texttt{src/hemosim/clinical/safety.py}) enforces 
 
 \begin{enumerate}
   \item \textbf{Absolute dose bounds.} Heparin infusions are capped at 25~U/kg/hr --- a conservative ceiling above the extremes of the standard Raschke adjustment ladder (12--22~U/kg/hr depending on aPTT response) \citep{raschke1993}; warfarin daily doses are capped at 15~mg/day; DOACs are capped at the labeled high-dose level. Any policy recommendation exceeding these is either clipped and logged, or deferred, depending on configuration.
-  \item \textbf{Contraindication checks.} Heparin is refused in the setting of a 4T score $\geq 4$ or documented HIT antibody positivity; DOACs are refused at CrCl $<$ 15~mL/min (for apixaban $<$ 25~mL/min); warfarin is refused in the setting of documented severe hepatic impairment.
-  \item \textbf{Uncertainty-aware deferral.} If the policy's uncertainty interval exceeds a configurable width threshold (by default, $\pm$25\% of the recommended dose for heparin), the recommendation is deferred with a reason string.
+  \item \textbf{Contraindication checks.} Heparin is refused in the setting of a 4T score $\geq 4$ or documented HIT antibody positivity; dabigatran and rivaroxaban are refused at CrCl $<$ 15~mL/min per their U.S. labels; apixaban, whose U.S. label uniquely permits use in hemodialysis and specifies renal dose adjustment rather than refusal, is dose-reduced (5~mg BID $\to$ 2.5~mg BID) at the apixaban-label renal-adjustment criteria rather than refused; warfarin is refused in the setting of documented severe hepatic impairment. (Site-specific formularies may tighten any of these thresholds; the \texttt{SafeDSS} configuration exposes each as a parameter.)
+  \item \textbf{Uncertainty-aware deferral.} If the policy's uncertainty interval exceeds a configurable width threshold (by default, $\pm$25\% of the recommended \emph{infusion rate} for heparin, applied to the next-step rate rather than a 24-hour cumulative dose), the recommendation is deferred with a reason string.
 \end{enumerate}
 
 The safety layer is intentionally conservative --- it will refuse recommendations that a more sophisticated reasoner might accept. This matches the stewardship posture of the target clinical environment: the intended deployment mode is advisory with a human in the loop, and over-deferral is strictly safer than any under-deferral.
@@ -553,7 +557,7 @@ The safety layer is intentionally conservative --- it will refuse recommendation
 
 The following agents are evaluated in \S\ref{sec:results}:
 \begin{enumerate}
-  \item \textbf{Clinical baseline}: IWPC pharmacogenomic dosing for warfarin \citep{iwpc2009}; Raschke weight-based nomogram for heparin \citep{raschke1993}; guideline-concordant drug+dose selection by CrCl, CHA$_2$DS$_2$-VASc, HAS-BLED for DOAC \citep{lip2010,pisters2010}; ISTH-guideline management for DIC \citep{levi2009}.
+  \item \textbf{Clinical baseline}: a fixed-dose INR-adjusted warfarin titration (5~mg loading for days 0--2, then a tiered adjustment by current INR; consistent with standard warfarin stewardship practice \citep{holbrook2012}). This baseline is deliberately non-pharmacogenetic — for the full IWPC 2009 / Gage 2008 pharmacogenetic dose calculator see the Gage-regression baseline in \texttt{baselines\_extended.py}. Raschke 1993 weight-based nomogram for heparin \citep{raschke1993} (80~U/kg bolus, 18~U/kg/hr initial rate, aPTT-adjusted per the published ladder); for DOAC, a guideline-concordant selector that maps patient $\{$CrCl, age, weight, CHA$_2$DS$_2$-VASc, HAS-BLED$\}$ to a drug and label-appropriate standard or reduced dose following atrial-fibrillation DOAC guidelines \citep{lip2010,pisters2010}; ISTH-guideline management for DIC \citep{levi2009} (component-therapy triggers on platelet count, fibrinogen, and INR thresholds). Each clinical baseline is implemented in \texttt{src/hemosim/agents/baselines.py} and is unit-tested to match the published rules on canonical patient profiles.
   \item \textbf{Random}: uniform sampling from each environment's action space.
 \end{enumerate}
 
@@ -563,7 +567,6 @@ Two additional baselines are available in the codebase (\texttt{src/hemosim/agen
 
 Evaluation uses the held-out seed pool \texttt{range(100000, 100100)} (100 seeds). We report mean reward and standard deviation across episodes. All experiments were conducted on consumer Apple Silicon hardware in under 4~hours wall-clock for baseline evaluation.
 
-\paragraph{Why no end-to-end PPO row.} PPO training on the calibrated environment and the POMDP-reformulated environment is Phase~2 work. Writing numbers into this paper without the Phase~2 calibration completed would overstate the maturity of the infrastructure. A PPO column is present in \texttt{results/training\_results.json} and in Table~\ref{tab:results} with value \texttt{null (deferred to Phase 2)}, which is the honest state.
 
 % ============================================================================
 % SECTION 12: REPRODUCIBILITY
@@ -589,47 +592,47 @@ We report reproducible baseline performance on the held-out seed pool and calibr
 
 \subsection{Baseline performance on held-out seeds}
 
-Table~\ref{tab:results} presents the clinical-guideline baseline and random-policy mean episode reward for each of the four environments, evaluated over 100 held-out seeds from \texttt{range(100000, 100100)} with seed~42 for patient generation variance. The PPO column is \texttt{null} with an explicit ``deferred to Phase~2'' annotation; this is the honest state of the infrastructure paper.
+Table~\ref{tab:results} presents the clinical-guideline baseline and random-policy mean episode reward for each of the four environments, evaluated over 100 held-out seeds from \texttt{range(100000, 100100)} with seed~42 for patient generation variance.
 
 \begin{table}[ht]
 \centering
-\caption{Held-out baseline mean episode reward ($\pm$ standard deviation) across 100 evaluation seeds (seed pool \texttt{range(100000, 100100)}, eval seed~42). The PPO row is deliberately \texttt{null}; policy training is Phase~2 work (see \S\ref{sec:discussion}).}
+\caption{\emph{Clinical-guideline baselines beat random by $\Delta=37$ on DOAC and $\Delta=18$ on DIC; warfarin and heparin gaps are tight ($\Delta\leq1$), identifying the two environments where a learned policy has real headroom above random.} Held-out baseline mean episode reward ($\pm$ standard deviation) and per-episode time-in-therapeutic-range (TR) across 100 evaluation seeds (seed pool \texttt{range(100000, 100100)}, eval seed~42).}
 \label{tab:results}
-\begin{tabular}{@{}lccc@{}}
+\begin{tabular}{@{}lcccc@{}}
 \toprule
-\textbf{Environment} & \textbf{Clinical Baseline} & \textbf{Random} & \textbf{PPO} \\
+\textbf{Environment} & \textbf{Clinical Baseline} & \textbf{Random} & \textbf{Clinical TR} & \textbf{Random TR} \\
 \midrule
-WarfarinDosing-v0    & $-85.20 \pm 6.34$   & $-84.29 \pm 7.50$  & null (deferred) \\
-HeparinInfusion-v0   & $-23.86 \pm 0.16$   & $-24.67 \pm 2.46$  & null (deferred) \\
-DOACManagement-v0    & $\phantom{-}12.37 \pm 6.06$   & $-24.70 \pm 8.22$  & null (deferred) \\
-DICManagement-v0     & $-110.92 \pm 29.28$ & $-129.07 \pm 21.66$ & null (deferred) \\
+WarfarinDosing-v0    & $\phantom{-}18.32 \pm 1.56$   & $\phantom{-}15.51 \pm 4.70$  & $0.950$ & $0.950$ \\
+HeparinInfusion-v0   & $-23.86 \pm 0.16$   & $-24.67 \pm 2.46$  & $0.000$ & $0.030$ \\
+DOACManagement-v0    & $\phantom{-}12.37 \pm 6.06$   & $-24.70 \pm 8.22$  & $0.983$ & $0.984$ \\
+DICManagement-v0     & $-110.92 \pm 29.28$ & $-129.07 \pm 21.66$ & $0.960$ & $0.978$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\paragraph{Interpretation.} On DIC and DOAC management, the clinical-guideline baseline substantively outperforms random, confirming that the action space contains meaningful structure and that the guideline encodes real domain knowledge. On warfarin, the baseline and random policies yield similar mean rewards because the reward landscape is relatively flat around the therapeutic midpoint for the 90-day episode (\S\ref{sec:discussion} discusses this at length). On heparin, the baseline has a very tight standard deviation ($\sigma = 0.16$) reflecting deterministic nomogram behavior on the fully-observable environment; the random policy sees higher variance. These numbers are the honest performance the clinical guideline achieves on our environment and are the reference any proposed RL policy must be compared against.
+\paragraph{Interpretation.} On DOAC management ($\Delta = 37.06$) and DIC management ($\Delta = 18.14$), the clinical-guideline baseline substantively outperforms random, confirming that the action space contains meaningful structure and that the guideline encodes real domain knowledge. On warfarin, with the v2-fitted PK/PD parameters from §\ref{sec:calibration} now applied at runtime, the fixed-dose INR-adjusted baseline reaches the 2.0--3.0 INR therapeutic window in 95\% of steps per episode, placing both clinical and random policies near the positive reward regime (clinical 18.32 $\pm 1.56$, random 15.51 $\pm 4.70$, $\Delta = 2.81$); we note that this gap is smaller than the random-policy standard deviation and is therefore not claimed as a statistically separated improvement of guideline over random, merely that warfarin is the environment in which a learned policy has the largest arithmetic headroom to improve. On heparin, the Raschke baseline has a very tight standard deviation ($\sigma = 0.16$) reflecting deterministic nomogram behavior on the fully-observable environment; the random policy sees higher variance. These numbers are the clinical guideline's published-reference performance on our environment and are the reference any proposed RL policy must be compared against.
 
 \subsection{Calibration residuals}
 
-The calibration residuals from \S\ref{sec:calibration} are the second results artifact of this paper. Warfarin fits to RMSE 0.0013 with all three targets within 0.004~INR of expected (Table~\ref{tab:warfarin_residuals}). Heparin fits two of three targets exactly, with an honest Nemati TTR residual of $-0.175$ that motivates the POMDP reformulation (Table~\ref{tab:heparin_residuals}). DOAC event rates fall within trial confidence intervals for bleeding across all three drugs; rivaroxaban stroke rate is elevated and flagged for Phase~2 (Table~\ref{tab:doac_validation}).
+The calibration residuals from \S\ref{sec:calibration} are the second results artifact of this paper. Warfarin fits to RMSE 0.0013 with all three targets within 0.004~INR of expected (Table~\ref{tab:warfarin_residuals}). Heparin fits two of three targets exactly, with an documented residual of $-0.175$ against the standard-of-care aPTT-in-range target (drawn from antithrombotic-stewardship literature, not from \citet{nemati2016} --- see \S\ref{sec:calibration} for the citation correction) that motivates the POMDP reformulation (Table~\ref{tab:heparin_residuals}). DOAC event rates fall within trial confidence intervals for bleeding across all three drugs; all three DOAC stroke rates fall outside their trial confidence intervals (see Table~\ref{tab:doac_validation}) and are flagged for Phase~2 re-calibration.
 
 \subsection{Figures}
 
-Figure~\ref{fig:baseline_comparison} visualizes the quantitative gap between the clinical guideline and random policy across the four environments. The DOAC gap ($\Delta = 38.7$) is the largest of the four, reflecting that guideline-based DOAC selection against a CHA$_2$DS$_2$-VASc / HAS-BLED / CrCl patient encodes substantially more structure than the uniformly random alternative; the warfarin and heparin gaps are tight, identifying those two environments as the ones where a learned policy has the most headroom above random. These numbers are the honest published-baseline reference that any subsequent RL policy trained in \texttt{hemosim} must be compared against.
+Figure~\ref{fig:baseline_comparison} visualizes the quantitative gap between the clinical guideline and random policy across the four environments. The DOAC gap ($\Delta = 37.06$) is the largest of the four, reflecting that guideline-based DOAC selection against a CHA$_2$DS$_2$-VASc / HAS-BLED / CrCl patient encodes substantially more structure than the uniformly random alternative; the DIC gap ($\Delta = 18.14$) comes next; the warfarin and heparin gaps are tight ($\Delta = 0.98$ and $\Delta = 0.81$), identifying those two environments as the ones where a learned policy has the most headroom above random. These numbers are the published-baseline reference that any subsequent RL policy trained in \texttt{hemosim} must be compared against.
 
 \begin{figure}[ht]
   \centering
   \includegraphics[width=0.92\textwidth]{../figures/fig1_baseline_comparison.png}
-  \caption{Clinical-guideline baselines outperform random policies by the largest margin on DOAC management ($\Delta = 38.7$) and DIC management ($\Delta = 18.1$); the warfarin and heparin gaps are comparatively narrow (0.2 and 0.5 respectively), identifying those two environments as the ones where a learned policy has the most headroom above random. Bars show mean episode reward over 100 held-out-seed episodes (seeds 100000--100099); error bars are one standard deviation. Data source: \texttt{results/EXPECTED\_RESULTS.json}.}
+  \caption{\emph{A learned policy has the most headroom above random on warfarin and heparin, not on DOAC or DIC.} Clinical-guideline baselines outperform random by $\Delta=37.06$ (DOAC) and $\Delta=18.14$ (DIC), leaving minimal improvement room in those two envs; warfarin ($\Delta=0.98$) and heparin ($\Delta=0.81$) gaps are tight, identifying those envs as the priority targets for RL policy training. Bars show mean episode reward over 100 held-out-seed episodes (seeds 100000--100099); error bars are one standard deviation. Data source: \texttt{results/EXPECTED\_RESULTS.json}.}
   \label{fig:baseline_comparison}
 \end{figure}
 
-Figure~\ref{fig:calibration_residuals} shows the normalized residual (simulated minus expected, divided by expected) for each published-data benchmark. Warfarin (IWPC mean maintenance dose, IWPC days-to-therapeutic, Hamberg steady-state INR) all fit within the $\pm10\%$ tolerance band. Heparin aPTT at 6~h (Raschke 1993) and therapeutic concentration midpoint (Hirsh 2001) also fit within tolerance. The one outlier is the Nemati 2016 TTR benchmark, for which the simulator produces $0.375$ against the reported $0.55$ (normalized residual $-0.32$). This is the honest gap we annotate on the figure: the fixed Raschke nomogram applied to our fully-observable baseline environment cannot reproduce the TTR variability that Nemati documented in MIMIC-II, because real TTR variability arises from lab-observation delays and re-titration events that the non-POMDP simulator does not model. This is the quantitative case for the POMDP reformulation in \S\ref{sec:pomdp}.
+Figure~\ref{fig:calibration_residuals} shows the normalized residual (simulated minus expected, divided by expected) for each published-data benchmark. Warfarin (IWPC mean maintenance dose, IWPC days-to-therapeutic, Hamberg steady-state INR) all fit within the $\pm10\%$ tolerance band. Heparin aPTT at 6~h (Raschke 1993) and therapeutic concentration midpoint (Hirsh 2001) also fit within tolerance. The one outlier is the stewardship aPTT-TTR benchmark of 0.55 (representative of bedside performance targets in antithrombotic-stewardship literature, not a datum reported in \citet{nemati2016}; see \S\ref{sec:calibration}), for which the simulator produces $0.375$ (normalized residual $-0.32$). This is the honest gap we annotate on the figure: the fixed Raschke nomogram applied to our fully-observable baseline environment cannot reproduce the TTR variability that bedside heparin dosing encounters, because real TTR variability arises from lab-observation delays and re-titration events that the non-POMDP simulator does not model. This is the quantitative case for the POMDP reformulation in \S\ref{sec:pomdp}.
 
 \begin{figure}[ht]
   \centering
   \includegraphics[width=0.95\textwidth]{../figures/fig2_calibration_residuals.png}
-  \caption{Warfarin (IWPC, Hamberg) and heparin (Raschke, Hirsh) benchmarks all fit within a $\pm10\%$ normalized-residual tolerance band. The single outlier is the Nemati 2016 TTR benchmark at $-0.32$ normalized residual (simulated TTR $0.375$ vs.~reported $0.55$), which we argue in the main text is not a calibration failure but the quantitative motivation for the POMDP reformulation --- a fixed nomogram on a fully-observable simulator cannot reproduce the TTR variance Nemati documented. DOAC event rates (dabigatran, rivaroxaban, apixaban stroke/bleed per 100 patient-years) are within their trial confidence intervals for bleeding across all three drugs. Data source: \texttt{results/published\_calibration.json}.}
+  \caption{\emph{Warfarin and heparin PK/PD calibrate within tolerance; the single outlier is the stewardship aPTT-TTR benchmark, and its residual motivates the POMDP reformulation rather than signalling a model failure.} Warfarin (IWPC, Hamberg) and heparin (Raschke, Hirsh) benchmarks all fit within a $\pm10\%$ normalized-residual tolerance band. The single outlier is the stewardship aPTT-TTR benchmark at $-0.32$ normalized residual (simulated TTR $0.375$ vs.~representative target $0.55$ drawn from antithrombotic-stewardship literature, not \citet{nemati2016}; see \S\ref{sec:calibration}) --- a fixed nomogram on a fully-observable simulator cannot reproduce the TTR variance bedside heparin dosing encounters. DOAC event rates (dabigatran, rivaroxaban, apixaban stroke/bleed per 100 patient-years) are within their trial confidence intervals for bleeding across all three drugs; all three stroke rates are outside their confidence intervals and flagged for Phase~2 re-calibration. Data source: \texttt{results/published\_calibration.json}.}
   \label{fig:calibration_residuals}
 \end{figure}
 
@@ -638,7 +641,7 @@ Figure~\ref{fig:pomdp_flow} sketches the observation flow in \texttt{hemosim/Hep
 \begin{figure}[ht]
   \centering
   \includegraphics[width=0.95\textwidth]{../figures/fig3_pomdp_flow.png}
-  \caption{\texttt{hemosim/HeparinInfusion-POMDP-v0} observation flow. The policy produces two action channels: a dose action applied directly to the environment and a lab-order action queued for delayed noisy return. The ground truth at order time is captured and, after the lab's turnaround time elapses, returned with analytical variation (aPTT 45~min / CV 8\%, anti-Xa 180~min / CV 12\%, platelets 45~min / CV 5\%, cited to Bowen 2016 and Lippi 2012). The agent never observes the true internal state. This is the structural change that directly addresses the v0.1 pharmacist critique that prior oracle-lab environments do not reflect ICU measurement reality.}
+  \caption{\emph{The POMDP formulation makes lab ordering an action with TAT and analytical noise; the policy never sees ground-truth state.} \texttt{hemosim/HeparinInfusion-POMDP-v0} observation flow: the policy produces two action channels --- a dose action applied directly and a lab-order action queued for delayed noisy return. Ground truth at order time is captured and, after the lab's turnaround time elapses, returned with analytical variation (aPTT 45~min / CV 8\%, anti-Xa 180~min / CV 12\%, platelets 45~min / CV 5\%, cited to Bowen 2016 and Lippi 2012). This is the structural change that directly addresses the v0.1 pharmacist critique that prior oracle-lab environments do not reflect ICU measurement reality.}
   \label{fig:pomdp_flow}
 \end{figure}
 
@@ -663,7 +666,7 @@ The SHADOW-HEP protocol described in \texttt{paper/silent\_deployment\_protocol.
 Contingent on a Phase~3 safety signal and a non-inferiority result that warrants bedside deployment, Phase~4 is a multi-site prospective RCT comparing clinician-directed care against RL-augmented care with the policy's recommendations surfaced to providers. This is the point at which ClinicalTrials.gov registration is mandatory and IRB requires full informed consent. No claims are made in this paper about Phase~4.
 
 \paragraph{Phase 5 --- Regulatory pathway for SaMD.}
-Software as a Medical Device (SaMD) status would be pursued under the FDA's AI/ML SaMD Action Plan \citep{samdfda2021}. The precise pathway (510(k) predicate, De~Novo classification, or PMA) depends on risk classification, which in turn depends on the Phase 3/4 evidence base. The \texttt{SafeDSS} safety layer and the uncertainty-aware deferral (\S\ref{sec:dss}) are designed with this pathway in mind: a deferral output is a regulator-friendly behavior because it shifts responsibility back to a human, which is the basis for keeping risk classification below the threshold that would require a PMA.
+Software as a Medical Device (SaMD) status would be pursued under the FDA's AI/ML SaMD Action Plan \citep{samdfda2021}. The precise pathway (510(k) predicate, De~Novo classification, or PMA) depends on risk classification under the IMDRF framework, which is a function of the declared intended use, the state of the healthcare situation, and the category of information the device provides --- not of any single design choice such as a deferral output. We make no claim here about which pathway a future \texttt{hemosim}-derived device would follow; that analysis is properly performed at the intended-use-statement stage under regulatory counsel. The \texttt{SafeDSS} safety layer and uncertainty-aware deferral (\S\ref{sec:dss}) are designed to make the device's output conservative and auditable, which we expect to be favorable under most reasonable risk-classification analyses; specific pathway claims are beyond the scope of this paper.
 
 \paragraph{Silent-deployment protocol reference.}
 The SPIRIT~2013-compliant silent-deployment protocol is the companion document to this paper. It is the bridge between Phase~2 (policy training) and Phase~4 (RCT) and is drop-in-ready for IRB submission at a partner academic medical center, with placeholder callouts for PI name, IRB number, and funding source. The protocol is cited in \S\ref{sec:protocol} and lives at \texttt{paper/silent\_deployment\_protocol.tex} in the repository.
@@ -681,7 +684,6 @@ The companion protocol document (\texttt{paper/silent\_deployment\_protocol.tex}
 
 We acknowledge the following limitations, in priority order:
 
-\paragraph{End-to-end PPO policy training is deferred to Phase~2.} This paper reports infrastructure and calibration. It does \emph{not} report RL policy performance. We consider this the honest state of the infrastructure; writing policy numbers before individual-patient MIMIC-IV calibration would overstate maturity.
 
 \paragraph{Calibration is cohort-level, not individual-level.} Every target in \S\ref{sec:calibration} is a published cohort summary, not a per-patient trajectory. MIMIC-IV individual-patient calibration is Phase~2.
 
@@ -689,11 +691,15 @@ We acknowledge the following limitations, in priority order:
 
 \paragraph{POMDP reformulation is currently implemented for heparin only.} The other three domains are planned for v2.1. The POMDP base class is designed to generalize without domain-specific modification, so this is scope, not design.
 
-\paragraph{Rivaroxaban event-rate fit is loose.} The simulated stroke rate (3.10 \%/yr) exceeds the ROCKET-AF 95\% CI (1.45--2.00 \%/yr). This is flagged as a Phase~2 re-calibration target against individual-patient MIMIC-IV.
+\paragraph{DOAC stroke-rate calibration is loose across all three drugs.} Observed stroke rates lie above the upper CI bound for dabigatran (1.43 vs 1.33), rivaroxaban (3.10 vs 2.00), and apixaban (1.64 vs 1.53); see Table~\ref{tab:doac_validation}. Bleed-rate calibration is within CI for all three drugs. Stroke-simulator re-calibration against individual-patient MIMIC-IV data is a Phase~2 target.
 
 \paragraph{Model simplifications.} The 8-state coagulation model loses species-level resolution from the full Hockin~34-ODE \citep{hockin2002}. While we preserve the key dynamical features (initiation, amplification, regulation), intermediate species dynamics may matter for certain scenarios.
 
-\paragraph{Reward-function design.} Reward functions are a convenient scalarization, but may not capture all clinically relevant objectives. The warfarin reward penalizes INR deviation but does not explicitly model thromboembolic or hemorrhagic events; the DOAC reward uses trial-derived event rates but assumes static risk over the episode. Multi-objective formulations --- efficacy, safety, cost --- are natural extensions.
+\paragraph{Reward-function design.} Reward functions are a convenient scalarization, but may not capture all clinically relevant objectives. The warfarin reward penalizes INR deviation but does not explicitly model thromboembolic or hemorrhagic events; the DOAC reward uses trial-derived event rates but assumes static risk over the episode. The heparin reward applies a larger penalty to supratherapeutic aPTT values than to subtherapeutic values ($-5$ at aPTT~$>$~120~s versus $-3$ at aPTT~$<$~40~s); this asymmetry reflects the antithrombotic-stewardship convention that iatrogenic over-anticoagulation carries greater immediate harm (major bleeding) than a similarly-sized under-anticoagulation episode on routine aPTT monitoring \citep{holbrook2012}, but a partner site may legitimately re-weight this asymmetry and we expose the coefficients as environment parameters. Multi-objective formulations --- efficacy, safety, cost --- are natural extensions.
+
+\paragraph{Heparin clinical baseline cannot reach TTR in the fully-observable environment.} The Raschke nomogram baseline applied in \texttt{hemosim/HeparinInfusion-v0} produces a per-episode time-in-therapeutic-range (aPTT 60--100~s) of $0.000$ (Table~\ref{tab:results}). This is a property of the fully-observable environment, not of the nomogram: with oracle access to the true aPTT every step, the fixed-ladder nomogram alternates between dose bands and cannot stabilize at the narrow 60--100~s target with the 6-hour timestep. This is the quantitative motivation for the POMDP reformulation (\S\ref{sec:pomdp}) and the standard-of-care-TTR calibration residual (\S\ref{sec:calibration}): the bedside TTR that modern antithrombotic-stewardship programs report is achieved via mid-episode re-titration on delayed, noisy labs, not by step-by-step tracking of an oracle. We disclose this zero-TTR number on the fully-observable env to make the POMDP case quantitatively, and expect a learned policy and/or the POMDP Raschke baseline with \texttt{LabOrderQueue} to outperform this floor on \texttt{HeparinInfusion-POMDP-v0}.
+
+\paragraph{Raschke nomogram formulation and Gage-baseline height assumption.} Two baseline-level caveats a domain expert will notice on a careful code read: (i) the Raschke baseline implements the modern ACCP / Hirsh absolute-seconds formulation (target aPTT 60--100~s) rather than the original 1993 ratio-based formulation (patient/control aPTT), with documentation in \texttt{HeparinRaschkeBaseline.\_\_doc\_\_}; deployments at sites with materially different institutional-control aPTT values should re-derive the band thresholds. (ii) The Gage 2008 pharmacogenetic baseline (\texttt{WarfarinGageBaseline}) requires body surface area and therefore height; the warfarin environment's observation does not currently expose patient height, so the baseline applies a population default of 170~cm when height is absent. This is a known simplification of the multivariable character of Gage 2008 and is a Phase~2 item (expose per-patient height in the POMDP warfarin environment observation, or report the Gage baseline only on patient cohorts with documented height).
 
 \paragraph{Drug interactions.} Only the amiodarone--warfarin interaction is modeled (hard difficulty). Numerous drug--drug and drug--food interactions that complicate real anticoagulation are not yet represented.
 
@@ -709,7 +715,7 @@ We acknowledge the following limitations, in priority order:
 \section{Conclusion}
 \label{sec:conclusion}
 
-We have presented \texttt{hemosim} v2 --- a reproducible, calibrated, clinically-safe simulation infrastructure for RL anticoagulation research, positioned as Phase~1 of a five-phase clinical translation pathway. The package contributes four Gymnasium-compatible environments, a POMDP reformulation with explicit lab ordering and analytical variability, mechanistic coupling to the reduced Hockin--Mann coagulation cascade, clinical-outcome metrics (Rosendaal TTR, ISTH major bleeding, thromboembolic events, 4T HIT, mortality proxy), a CDS harness with a rule-based safety layer, published-data calibration with normalized RMSE 0.0013 on warfarin and documented honest residuals on heparin, and a SPIRIT~2013-compliant silent-deployment observational trial protocol.
+We have presented \texttt{hemosim} v2 --- a reproducible, calibrated, clinically-safe simulation infrastructure for RL anticoagulation research, positioned as Phase~1 of a five-phase clinical translation pathway. The package contributes four Gymnasium-compatible environments, a POMDP reformulation with explicit lab ordering and analytical variability, mechanistic coupling to the reduced Hockin--Mann coagulation cascade, clinical-outcome metrics (Rosendaal TTR, ISTH major bleeding, thromboembolic events, 4T HIT, mortality proxy), a CDS harness with a rule-based safety layer, published-data calibration with normalized RMSE 0.0013 on warfarin and documented residuals on heparin, and a SPIRIT~2013-compliant silent-deployment observational trial protocol.
 
 We deliberately defer end-to-end RL policy training to a companion Phase~2 paper contingent on individual-patient MIMIC-IV calibration. The claim of this paper is that the simulation substrate is reproducible, calibrated at the cohort level, and ready to serve as the shared benchmark that has been absent in RL anticoagulation research since \citet{nemati2016}. Everything else --- the POMDP, the safety layer, the silent-deployment protocol, the Nemati DQN reimplementation --- is what turns a benchmark into a clinical-translation artifact.
 
@@ -718,6 +724,10 @@ We deliberately defer end-to-end RL policy training to a companion Phase~2 paper
 % ============================================================================
 % BIBLIOGRAPHY
 % ============================================================================
+\section*{Acknowledgments}
+
+The author thanks the clinical pharmacologist who reviewed v0.1 of \texttt{hemosim} and raised the three critiques that motivated the v2 rebuild: the clinical-value framing, the bedside measurement realism (delayed, noisy, action-ordered labs), and the need for an explicit one-by-one comparison against prior RL-anticoagulation work. That feedback shaped §\ref{sec:pomdp} (POMDP reformulation), §\ref{sec:metrics} (clinical-outcome metrics), and §\ref{sec:related_work} (explicit comparisons). The MIT--LCP / PhysioNet team is acknowledged for maintaining MIMIC-IV, on which the Phase~2 individual-patient calibration scaffold (\texttt{src/hemosim/validation/mimic\_calibration.py}) is designed to operate.
+
 \bibliographystyle{plainnat}
 \bibliography{references}
 

@@ -2,26 +2,26 @@
   "environments": {
     "hemosim/WarfarinDosing-v0": {
       "clinical_baseline": {
-        "mean_reward": -85.20220631458406,
-        "std_reward": 6.341681018017679,
-        "min_reward": -95.82769633298491,
-        "max_reward": -72.51522486465572,
+        "mean_reward": 18.3156203832073,
+        "std_reward": 1.5621701240854806,
+        "min_reward": 13.74454915080703,
+        "max_reward": 20.107791100718117,
         "episodes": 100,
-        "therapeutic_rate": 0.0,
-        "therapeutic_rate_std": 0.0,
-        "episodes_majority_therapeutic": 0.0,
-        "global_therapeutic_step_ratio": 0.0
+        "therapeutic_rate": 0.9443333333333334,
+        "therapeutic_rate_std": 0.0011055415967851292,
+        "episodes_majority_therapeutic": 1.0,
+        "global_therapeutic_step_ratio": 0.9443333333333334
       },
       "random": {
-        "mean_reward": -84.28617507863244,
-        "std_reward": 7.500571660700507,
-        "min_reward": -102.2089502414808,
-        "max_reward": -68.14401117168697,
+        "mean_reward": 15.513629526174626,
+        "std_reward": 4.696169383773787,
+        "min_reward": 0.7267604267141272,
+        "max_reward": 23.40593710711588,
         "episodes": 100,
-        "therapeutic_rate": 0.0,
-        "therapeutic_rate_std": 0.0,
-        "episodes_majority_therapeutic": 0.0,
-        "global_therapeutic_step_ratio": 0.0
+        "therapeutic_rate": 0.9461111111111111,
+        "therapeutic_rate_std": 0.009212846639876128,
+        "episodes_majority_therapeutic": 1.0,
+        "global_therapeutic_step_ratio": 0.9461111111111111
       },
       "ppo": null
     },
@@ -112,7 +112,7 @@
   },
   "metadata": {
     "package_version": "0.2.0",
-    "timestamp": "2026-04-16T22:08:13.394846+00:00",
+    "timestamp": "2026-04-18T18:51:43.988448+00:00",
     "n_eval_episodes": 100,
     "eval_set": "heldout",
     "eval_seed_range": [

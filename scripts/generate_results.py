@@ -5,10 +5,10 @@ episode rollout. PPO numbers are produced ONLY when a trained model artifact
 exists under ``results/models/``; otherwise PPO entries are ``null`` so the
 paper cannot accidentally quote synthetic values.
 
-History note: a prior version of this file fabricated PPO results via the
-formula ``ppo_mean = clinical_mean * 1.25 + abs(random_mean) * 0.3`` (see
-``scripts/generate_results.v0.1-fabricated.py.bak``). That logic is removed.
-v2 policy: no formula-synthesized results anywhere in this repo.
+History note: a prior v0.1 version of this file fabricated PPO results via
+the formula ``ppo_mean = clinical_mean * 1.25 + abs(random_mean) * 0.3``.
+That fabricated generator was removed in v0.2.0. v2 policy: no formula-
+synthesized results anywhere in this repo.
 """
 
 from __future__ import annotations

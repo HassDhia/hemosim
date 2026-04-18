@@ -10,10 +10,21 @@ import numpy as np
 
 
 class WarfarinClinicalBaseline:
-    """IWPC pharmacogenetic-guided warfarin dosing algorithm.
+    """Fixed-dose, INR-adjusted warfarin titration protocol.
 
-    Simplified fixed-dose protocol: start 5mg, adjust by INR.
-    Based on the International Warfarin Pharmacogenetics Consortium algorithm.
+    This baseline is NOT the IWPC 2009 multivariable pharmacogenetic dose
+    calculator. It is a simple fixed-dose starting schedule (start at
+    5 mg/day, escalate on sub-therapeutic INR, hold on supra-therapeutic
+    INR) consistent with the conservative end of routine outpatient
+    warfarin titration practice (Holbrook 2012 ACCP). No genotype, age,
+    or interacting-drug regression is applied in this class.
+
+    The real pharmacogenetic calculator (Gage 2008 / IWPC 2009 multi-
+    variable regression using CYP2C9, VKORC1, age, sex, weight, and
+    interacting drugs) is implemented separately as
+    :class:`hemosim.agents.baselines_extended.WarfarinGageBaseline`.
+    Use that class when a paper or experiment requires a pharmacogenetic
+    comparator.
     """
 
     def __init__(self, seed: int | None = None) -> None:

@@ -99,26 +99,34 @@ class WarfarinPKPD:
         self.s_cl = self.s_cl_base * self.cyp2c9_factor * self.age_factor
         self.r_cl = self.r_cl_base * self.age_factor
 
-        # PD parameters - inhibitory Emax model
+        # PD parameters - inhibitory Emax model (v2 fitted values from
+        # scripts/run_published_calibration.py against Hamberg / IWPC
+        # steady-state INR targets; residuals < 0.004 INR, RMSE 0.0013).
+        # v0.1 priors (ec50=1.5, hill=1.3) undershot the Hamberg ceiling;
+        # fitted values now place the wild-type 5 mg/day steady-state INR
+        # inside the Hamberg 2007 [2.3, 2.7] target band.
         self.emax = 1.0        # maximum inhibition fraction
-        self.ec50 = 1.5        # mg/L - adjusted by VKORC1
+        self.ec50 = 1.106      # mg/L - adjusted by VKORC1 (v2 fitted)
+        # VKORC1 GG multiplier is also calibration-fitted (v0.1 prior = 1.00).
+        # Only rescale the GG genotype's EC50 factor; GA/AA inherit their
+        # Hamberg 2007 relative multipliers unchanged.
+        if vkorc1 == "GG":
+            self.vkorc1_factor = 0.6154912522236529
         self.ec50_adjusted = self.ec50 * self.vkorc1_factor
-        self.hill = 1.3        # Hill coefficient
+        self.hill = 1.650      # Hill coefficient (v2 fitted)
         self.baseline_inr = 1.0
 
         # Transit compartment rate for INR delay (~36-72h delay)
         self.k_transit = 0.04  # 1/h (~25h mean transit time per compartment)
 
-        # Vitamin-K-cycle inhibition gain and S-warfarin potency multiplier.
-        # These are exposed for calibration (see hemosim.validation) — v0.1
-        # used fixed values 0.04 and 3.0 respectively, but matching the
-        # Hamberg / IWPC steady-state INR targets requires raising the
-        # inhibition gain so that saturating drug drives VK-cycle activity
-        # well below 0.5 (INR > 2.0). Keeping the default = 0.04 for
-        # backwards compatibility; fitted values live in the calibration
-        # report at `results/calibration_report.md`.
-        self.vk_inhibition_gain = 0.04     # 1/h
-        self.s_warfarin_potency = 3.0      # dimensionless
+        # Vitamin-K-cycle inhibition gain and S-warfarin potency multiplier
+        # (v2 fitted values). v0.1 used 0.04 and 3.0 respectively, but
+        # matching the Hamberg / IWPC steady-state INR targets requires
+        # raising the inhibition gain so that saturating drug drives VK-cycle
+        # activity well below 0.5 (INR > 2.0). Fitted values reported in
+        # `results/published_calibration.json` and calibration_report.md.
+        self.vk_inhibition_gain = 0.06519  # 1/h (v2 fitted)
+        self.s_warfarin_potency = 2.474    # dimensionless (v2 fitted)
 
         # State vector
         self.state = np.zeros(self.N_STATES)

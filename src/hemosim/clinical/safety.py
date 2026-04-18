@@ -36,18 +36,15 @@ Clinical sources
   thresholds at INR > 4.5–5.0.
 * Raschke RA, Reilly BM, Guidry JR, et al. *The weight-based heparin
   dosing nomogram.* Ann Intern Med 1993;119:874-881. Typical
-  infusions 12–22 U/kg/hr; our absolute ceiling of 25 U/kg/hr bakes in
-  a small safety margin versus the published "re-bolus + 22 U/kg/hr"
-  maximum adjustment.
+  infusions 12–22 U/kg/hr; our absolute ceiling of 25 U/kg/hr is a
+  conservative margin above the upper end of the Raschke nomogram
+  ladder (not an institutional committee ceiling), consistent with
+  Holbrook 2012 stewardship principles for absolute-dose guardrails.
 * Warkentin TE. *Heparin-induced thrombocytopenia.* Br J Haematol
   2003;121:535-555. HIT suspected at platelets <100 x10^9/L with
   clinical features; platelets <50 x10^9/L is a commonly-used
-  institutional hold threshold for continued heparin in the absence
-  of an explicit override.
-* UCSD Medical Center Antithrombotic Stewardship Committee
-  protocols — the absolute infusion ceilings here (25 U/kg/hr, 80
-  U/kg bolus) are consistent with the heparin protocol adopted in
-  most US academic medical centers including UCSD Health.
+  hold threshold for continued heparin in the absence of an
+  explicit override.
 
 Design notes
 ------------
@@ -113,8 +110,8 @@ class SafetyBounds:
         :class:`DosingRecommendation`, used by the uncertainty-interval
         heuristic to decide when to defer to a clinician.
     max_infusion_u_per_kg_hr
-        Heparin only — absolute ceiling on U/kg/hr (UCSD protocol /
-        Raschke margin).
+        Heparin only — absolute ceiling on U/kg/hr (conservative margin
+        above the upper end of the Raschke 1993 nomogram ladder).
     max_bolus_u_per_kg
         Heparin only — absolute ceiling on bolus dose in U/kg.
     bolus_refractory_hours

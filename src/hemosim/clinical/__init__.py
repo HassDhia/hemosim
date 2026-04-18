@@ -13,18 +13,19 @@ The two modules are:
   ``DosingRecommendation``, ``HeparinDSS``, ``WarfarinDSS``. The DSS
   loads a trained stable-baselines3 PPO policy if present and falls
   back to the validated clinical baseline (Raschke 1993 for heparin,
-  IWPC-style titration for warfarin) when torch/sb3 are unavailable or
-  no checkpoint is on disk. This means *the harness is always
-  callable*, which is a precondition for any clinical-translation
-  conversation.
+  a fixed-dose INR-adjusted titration protocol for warfarin consistent
+  with Holbrook 2012 ACCP) when torch/sb3 are unavailable or no
+  checkpoint is on disk. This means *the harness is always callable*,
+  which is a precondition for any clinical-translation conversation.
 * :mod:`hemosim.clinical.safety` (ISC-11) — ``SafetyBounds``,
   ``SafetyGuard``, ``SafeDSS``, ``SafetyCheckResult``. Enforces
-  per-drug absolute dose bounds (UCSD antithrombotic protocol, CHEST
-  2012, ACCP 2012), contraindications (e.g. HIT / platelets <50
-  blocking heparin unless explicitly overridden), and
-  uncertainty-aware deferral (``defer_to_clinician`` when confidence
-  is below a threshold or the uncertainty interval spans more than
-  half the clinical dose range).
+  per-drug absolute dose bounds (ACCP / CHEST 2012 antithrombotic
+  guidance plus a conservative margin above the Raschke 1993 nomogram
+  ladder), contraindications (e.g. HIT / platelets <50 blocking
+  heparin unless explicitly overridden), and uncertainty-aware
+  deferral (``defer_to_clinician`` when confidence is below a
+  threshold or the uncertainty interval spans more than half the
+  clinical dose range).
 
 The public surface is intentionally small — anything a downstream
 caller needs should be importable from :mod:`hemosim.clinical`.
