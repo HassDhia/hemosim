@@ -115,7 +115,7 @@ def fig1_baseline_comparison() -> Path:
     ax.set_xticklabels([label for _, label in envs])
     ax.set_ylabel("Mean episode reward (100 eps, held-out seeds)")
     ax.set_title("Clinical guideline vs. random policy across hemosim v2 environments")
-    ax.legend(loc="lower right", framealpha=0.9)
+    ax.legend(loc="upper right", frameon=True, framealpha=0.95)
 
     # Annotate DOAC gap (largest)
     doac_gap = clinical_means[2] - random_means[2]
@@ -338,10 +338,12 @@ def fig3_pomdp_flow() -> Path:
 
 
 def main() -> None:
+    # fig3_pomdp_flow is now authored as inline TikZ in paper/hemosim.tex.
+    # The PNG generator is retained for archival reproducibility but is no
+    # longer invoked by default — regenerating it would produce dead cruft.
     outs = [
         fig1_baseline_comparison(),
         fig2_calibration_residuals(),
-        fig3_pomdp_flow(),
     ]
     print("Generated:")
     for p in outs:

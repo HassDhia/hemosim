@@ -656,7 +656,6 @@ Figure~\ref{fig:pomdp_flow} sketches the observation flow in \texttt{hemosim/Hep
   \centering
   \begin{tikzpicture}[
     font=\small,
-    node distance=1.6cm and 1.6cm,
     box/.style={rectangle, rounded corners=3pt, draw, thick, align=center, minimum height=1.0cm, inner sep=6pt},
     policy/.style={box, fill=blue!12, minimum width=2.6cm},
     dose/.style={box, fill=blue!6, minimum width=2.6cm},
@@ -668,27 +667,36 @@ Figure~\ref{fig:pomdp_flow} sketches the observation flow in \texttt{hemosim/Hep
     dashedarr/.style={-{Latex[length=2.2mm]}, thick, dashed}
   ]
 
-    \node[policy] (policy) {Policy\\$\pi(a_t \mid o_{\leq t}, a_{<t})$};
+    % Column 1: Policy (left)
+    \node[policy] (policy) at (0, 0) {Policy\\$\pi(a_t \mid o_{\leq t}, a_{<t})$};
 
-    \node[dose,       right=2.2cm of policy] (dose)    {Dose action\\(infusion rate)};
-    \node[labaction,  below=0.9cm of dose]   (labact)  {Lab-order action\\(aPTT / anti-Xa / plt)};
+    % Column 2: Action nodes (stacked), right of policy
+    \node[dose]      (dose)   at (4.6,  1.2) {Dose action\\(infusion rate)};
+    \node[labaction] (labact) at (4.6, -1.2) {Lab-order action\\(aPTT / anti-Xa / plt)};
 
-    \node[state, right=2.2cm of dose]   (state) {HeparinPKPD\\(true state, hidden)};
-    \node[queue, right=2.2cm of labact] (queue) {LabOrderQueue\\(TAT + CV noise)};
+    % Column 3: Hidden state (top) + lab-order queue (bottom)
+    \node[state] (state) at (9.5,  1.2) {HeparinPKPD\\(true state, hidden)};
+    \node[queue] (queue) at (9.5, -1.2) {LabOrderQueue\\(TAT + CV noise)};
 
-    \node[obs, below=1.0cm of queue] (obs) {Observation:\\returned lab history\\$(\ell, v_{\text{noisy}}, t_{\text{ord}}, t_{\text{ret}}, \sigma_\ell)$};
+    % Column 3 continued: Observation (below queue)
+    \node[obs] (obs) at (9.5, -4.0) {Observation:\\returned lab history\\$(\ell, v_{\text{noisy}}, t_{\text{ord}}, t_{\text{ret}}, \sigma_\ell)$};
 
-    \draw[arr] (policy.east |- dose.west)   -- (dose.west);
-    \draw[arr] (policy.east |- labact.west) -- (labact.west);
+    % Policy emits two action channels (explicit waypoint, Z-bend, clear origin)
+    \draw[arr] (policy.east) -- ++(0.7, 0) |- (dose.west);
+    \draw[arr] (policy.east) -- ++(0.7, 0) |- (labact.west);
 
+    % Actions flow directly to their targets
     \draw[arr] (dose.east)   -- (state.west);
     \draw[arr] (labact.east) -- (queue.west);
 
+    % Hidden-state truth leaks to queue at order time (dashed, vertical)
     \draw[dashedarr] (state.south) -- node[right, font=\scriptsize]{truth at $t_{\text{ord}}$} (queue.north);
 
+    % Queue returns noisy observation after TAT
     \draw[arr] (queue.south) -- node[right, font=\scriptsize]{after $\text{TAT}_\ell$} (obs.north);
 
-    \draw[arr] (obs.west) -- ++(-2.2,0) |- (policy.south);
+    % Feedback loop: obs back to policy, routed below entire diagram (zero crossings)
+    \draw[arr] (obs.south) -- ++(0, -0.7) -| (policy.south);
 
   \end{tikzpicture}
   \caption{\emph{The POMDP formulation makes lab ordering an action with TAT and analytical noise; the policy never sees ground-truth state.} \texttt{hemosim/HeparinInfusion-POMDP-v0} observation flow: the policy produces two action channels --- a dose action applied directly and a lab-order action queued for delayed noisy return. Ground truth at order time is captured and, after the lab's turnaround time elapses, returned with analytical variation (aPTT 45~min / CV 8\%, anti-Xa 180~min / CV 12\%, platelets 45~min / CV 5\%, cited to Bowen 2016 and Lippi 2012). This is the structural change that directly addresses the v0.1 pharmacist critique that prior oracle-lab environments do not reflect ICU measurement reality.}
