@@ -95,7 +95,7 @@ def fig1_baseline_comparison() -> Path:
         random_means.append(env_data["random"]["mean_reward"])
         random_stds.append(env_data["random"]["std_reward"])
 
-    fig, ax = plt.subplots(figsize=(7, 4))
+    fig, ax = plt.subplots(figsize=(10, 6))
     x = np.arange(len(envs))
     width = 0.38
 
@@ -115,7 +115,12 @@ def fig1_baseline_comparison() -> Path:
     ax.set_xticklabels([label for _, label in envs])
     ax.set_ylabel("Mean episode reward (100 eps, held-out seeds)")
     ax.set_title("Clinical guideline vs. random policy across hemosim v2 environments")
-    ax.legend(loc="upper right", frameon=True, framealpha=0.95)
+    ax.legend(
+        loc="center left",
+        bbox_to_anchor=(1.02, 0.5),
+        frameon=False,
+        fontsize=10,
+    )
 
     # Annotate DOAC gap (largest)
     doac_gap = clinical_means[2] - random_means[2]
@@ -127,6 +132,7 @@ def fig1_baseline_comparison() -> Path:
         arrowprops=dict(arrowstyle="-", color=COLOR_CLINICAL, lw=0.5),
     )
 
+    plt.tight_layout()
     out = FIG_DIR / "fig1_baseline_comparison.png"
     fig.savefig(out)
     plt.close(fig)
@@ -200,7 +206,7 @@ def fig2_calibration_residuals() -> Path:
     }
     bar_colors = [trial_colors[t] for t in trial]
 
-    fig, ax = plt.subplots(figsize=(8, 4))
+    fig, ax = plt.subplots(figsize=(11, 6))
     x = np.arange(len(labels))
     bars = ax.bar(
         x, residuals, color=bar_colors,
@@ -213,7 +219,7 @@ def fig2_calibration_residuals() -> Path:
                label="±10% tolerance")
 
     ax.set_xticks(x)
-    ax.set_xticklabels(labels, rotation=0, fontsize=7.5)
+    ax.set_xticklabels(labels, rotation=30, ha="right", fontsize=9)
     ax.set_ylabel("Normalized residual  (obs − exp) / |exp|")
     ax.set_title("Published-data calibration residuals by benchmark")
 
@@ -224,7 +230,13 @@ def fig2_calibration_residuals() -> Path:
         mpatches.Patch(color=trial_colors["DOAC"], label="DOAC"),
         mpatches.Patch(color=COLOR_NEUTRAL, alpha=0.3, label="±10% tol."),
     ]
-    ax.legend(handles=patches, loc="lower left", framealpha=0.9, ncol=2)
+    ax.legend(
+        handles=patches,
+        loc="center left",
+        bbox_to_anchor=(1.02, 0.5),
+        frameon=False,
+        fontsize=10,
+    )
 
     # Annotate the Nemati TTR outlier
     for i, (label, r) in enumerate(zip(labels, residuals)):
@@ -237,6 +249,7 @@ def fig2_calibration_residuals() -> Path:
                 arrowprops=dict(arrowstyle="-", color=COLOR_RESIDUAL_POS, lw=0.5),
             )
 
+    plt.tight_layout()
     out = FIG_DIR / "fig2_calibration_residuals.png"
     fig.savefig(out)
     plt.close(fig)
