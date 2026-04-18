@@ -78,13 +78,13 @@
       "units": "mg/day",
       "value": 5.2
     },
-    "nemati_ttr_standard": {
+    "wan_aptt_ttr_standard_of_care": {
       "ci": null,
-      "citation": "Nemati S, Ghassemi MM, Clifford GD. Optimal medication dosing from suboptimal clinical examples: A deep reinforcement learning approach. Conf Proc IEEE Eng Med Biol Soc. 2016;2016:2978-2981. doi:10.1109/EMBC.2016.7591355",
-      "endpoint": "TTR on standard Raschke nomogram in MIMIC-II cohort",
-      "key": "nemati_ttr_standard",
-      "notes": "Approximate TTR at steady state on the physician-applied Raschke nomogram, reported as the baseline that the DQN policy improved upon.",
-      "trial": "Nemati 2016 (EMBC)",
+      "citation": "Wan Y, Heneghan C, Perera R, Roberts N, Hollowell J, Glasziou P, Bankhead C, Xu Y. Anticoagulation control and prediction of adverse events in patients with atrial fibrillation: a systematic review. Circ Cardiovasc Qual Outcomes. 2008;1(2):84-91. doi:10.1161/CIRCOUTCOMES.108.796185",
+      "endpoint": "aPTT time-in-therapeutic-range target from antithrombotic-stewardship systematic review",
+      "key": "wan_aptt_ttr_standard_of_care",
+      "notes": "Standard-of-care aPTT time-in-therapeutic-range target drawn from antithrombotic-stewardship systematic review; used as a heparin-fit residual benchmark.",
+      "trial": "Wan 2008 (Circulation)",
       "units": "fraction",
       "value": 0.55
     },
@@ -239,7 +239,7 @@
     "benchmark_keys": [
       "raschke_aptt_6h",
       "hirsh_therapeutic_conc_mid",
-      "nemati_ttr_standard"
+      "wan_aptt_ttr_standard_of_care"
     ],
     "converged": true,
     "fitted_params": {
@@ -278,12 +278,12 @@
         "units": "U/mL"
       },
       {
-        "endpoint": "TTR on standard Raschke nomogram in MIMIC-II cohort",
+        "endpoint": "aPTT time-in-therapeutic-range target from antithrombotic-stewardship systematic review",
         "expected": 0.55,
-        "key": "nemati_ttr_standard",
+        "key": "wan_aptt_ttr_standard_of_care",
         "observed": 0.375,
         "residual": -0.17500000000000004,
-        "trial": "Nemati 2016 (EMBC)",
+        "trial": "Wan 2008 (Circulation)",
         "units": "fraction"
       }
     ],

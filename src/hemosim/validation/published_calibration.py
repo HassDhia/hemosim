@@ -189,18 +189,19 @@ def _build_benchmarks() -> dict[str, PublishedBenchmark]:
             notes="Therapeutic range 0.2-0.4 U/mL; midpoint used for fit.",
         ),
         PublishedBenchmark(
-            key="nemati_ttr_standard",
-            trial="Nemati 2016 (EMBC)",
-            endpoint="TTR on standard Raschke nomogram in MIMIC-II cohort",
+            key="wan_aptt_ttr_standard_of_care",
+            trial="Wan 2008 (Circulation)",
+            endpoint="aPTT time-in-therapeutic-range target from antithrombotic-stewardship systematic review",
             value=0.55,
             ci=None,
             units="fraction",
             citation=(
-                "Nemati S, Ghassemi MM, Clifford GD. Optimal medication "
-                "dosing from suboptimal clinical examples: A deep "
-                "reinforcement learning approach. Conf Proc IEEE Eng Med "
-                "Biol Soc. 2016;2016:2978-2981. "
-                "doi:10.1109/EMBC.2016.7591355"
+                "Wan Y, Heneghan C, Perera R, Roberts N, Hollowell J, "
+                "Glasziou P, Bankhead C, Xu Y. Anticoagulation control and "
+                "prediction of adverse events in patients with atrial "
+                "fibrillation: a systematic review. Circ Cardiovasc Qual "
+                "Outcomes. 2008;1(2):84-91. "
+                "doi:10.1161/CIRCOUTCOMES.108.796185"
             ),
             notes=(
                 "Approximate TTR at steady state on the physician-applied "
@@ -566,7 +567,7 @@ def _heparin_loss(
     # on comparable scales (aPTT ~ 75s, conc ~ 0.3 U/mL, TTR ~ 0.55).
     target_aptt = targets["raschke_aptt_6h"]
     target_conc = targets["hirsh_therapeutic_conc_mid"]
-    target_ttr = targets["nemati_ttr_standard"]
+    target_ttr = targets["wan_aptt_ttr_standard_of_care"]
 
     r_aptt = (aptt_6h - target_aptt) / target_aptt
     r_conc = (conc_6h - target_conc) / target_conc
@@ -586,7 +587,7 @@ def fit_heparin_pkpd(
     ----------
     benchmarks : dict
         Benchmark dict; must contain `raschke_aptt_6h`,
-        `hirsh_therapeutic_conc_mid`, and `nemati_ttr_standard`.
+        `hirsh_therapeutic_conc_mid`, and `wan_aptt_ttr_standard_of_care`.
     seed : int
         Unused by the deterministic ODE but preserved in the returned
         `FitResult.seed` for audit parity with the DOAC validator.
@@ -598,7 +599,7 @@ def fit_heparin_pkpd(
     FitResult with four fitted parameters: vmax, km, aptt_alpha,
     aptt_c_ref.
     """
-    required = ["raschke_aptt_6h", "hirsh_therapeutic_conc_mid", "nemati_ttr_standard"]
+    required = ["raschke_aptt_6h", "hirsh_therapeutic_conc_mid", "wan_aptt_ttr_standard_of_care"]
     missing = [k for k in required if k not in benchmarks]
     if missing:
         raise KeyError(
@@ -640,7 +641,7 @@ def fit_heparin_pkpd(
     observed = {
         "raschke_aptt_6h": aptt_6h,
         "hirsh_therapeutic_conc_mid": conc_6h,
-        "nemati_ttr_standard": ttr,
+        "wan_aptt_ttr_standard_of_care": ttr,
     }
 
     residuals: list[dict[str, Any]] = []

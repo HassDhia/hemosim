@@ -46,6 +46,10 @@ paper/*.out
 paper/*.synctex.gz
 paper/*.fdb_latexmk
 paper/*.fls
+paper/*.toc
+
+# Gate-runner ephemeral output
+.reviews/gate-report-*.json
 
 # Project-specific
 .claude/

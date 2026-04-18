@@ -4,24 +4,48 @@ build-backend = "hatchling.build"
 
 [project]
 name = "hemosim"
-version = "0.2.0"
-description = "Reinforcement learning Gymnasium environments for hemostasis and anticoagulation management"
+version = "0.2.2"
+description = "Reinforcement-learning Gymnasium environments for hemostasis and anticoagulation management"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 authors = [
     { name = "Hass Dhia", email = "partners@smarttechinvest.com" },
 ]
+maintainers = [
+    { name = "Smart Technology Investments Research Institute", email = "partners@smarttechinvest.com" },
+]
+keywords = [
+    "reinforcement-learning",
+    "gymnasium",
+    "hemostasis",
+    "anticoagulation",
+    "warfarin",
+    "heparin",
+    "doac",
+    "clinical-decision-support",
+    "pharmacokinetics",
+    "pomdp",
+    "medical-ai",
+    "simulation",
+    "pk-pd",
+    "mimic",
+]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Medical Science Apps.",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Natural Language :: English",
 ]
 dependencies = [
     "numpy>=1.24",
@@ -35,6 +59,8 @@ dev = [
     "pytest-cov>=4.0",
     "ruff>=0.1",
     "mypy>=1.0",
+    "build>=1.0",
+    "twine>=4.0",
 ]
 train = [
     "stable-baselines3>=2.0",
@@ -44,6 +70,13 @@ all = [
     "hemosim[dev,train]",
 ]
 
+[project.urls]
+Homepage = "https://github.com/HassDhia/hemosim"
+Repository = "https://github.com/HassDhia/hemosim"
+Documentation = "https://github.com/HassDhia/hemosim#readme"
+Issues = "https://github.com/HassDhia/hemosim/issues"
+Changelog = "https://github.com/HassDhia/hemosim/blob/main/CHANGELOG.md"
+
 [project.scripts]
 hemosim-train = "hemosim.agents.ppo:main"
 hemosim-benchmark = "hemosim.benchmarks.runner:main"
@@ -52,13 +85,32 @@ hemosim-benchmark = "hemosim.benchmarks.runner:main"
 packages = ["src/hemosim"]
 
 [tool.hatch.build.targets.sdist]
+include = [
+    "src/hemosim/**/*.py",
+    "tests/**/*.py",
+    "scripts/*.py",
+    "scripts/*.sh",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "HELDOUT_SEEDS.md",
+    "pyproject.toml",
+]
 exclude = [
     "results/",
     "paper/",
+    "figures/",
     ".venv/",
     ".claude/",
+    ".reviews/",
+    "dist/",
     "*.pt",
     "*.zip",
+    "*.bak",
+    "__pycache__",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".mypy_cache",
 ]
 
 [tool.ruff]

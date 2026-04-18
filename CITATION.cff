@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+message: "If you use hemosim in academic work, please cite both the software and the methods paper."
+title: "hemosim: Gymnasium Environments for Reinforcement Learning in Hemostasis and Anticoagulation Management"
+version: 0.2.2
+date-released: "2026-04-18"
+type: software
+authors:
+  - family-names: Dhia
+    given-names: Hass
+    affiliation: "Smart Technology Investments Research Institute"
+    email: partners@smarttechinvest.com
+url: "https://github.com/HassDhia/hemosim"
+repository-code: "https://github.com/HassDhia/hemosim"
+license: MIT
+keywords:
+  - reinforcement-learning
+  - gymnasium
+  - hemostasis
+  - anticoagulation
+  - warfarin
+  - heparin
+  - doac
+  - clinical-decision-support
+  - pomdp
+  - pharmacokinetics
+preferred-citation:
+  type: article
+  title: "hemosim: Reproducible Simulation Infrastructure for Reinforcement Learning in Anticoagulation Management, with a POMDP Reformulation and a Clinical Translation Pathway"
+  authors:
+    - family-names: Dhia
+      given-names: Hass
+      affiliation: "Smart Technology Investments Research Institute"
+  year: 2026
+  url: "https://github.com/HassDhia/hemosim/blob/main/paper/hemosim.pdf"
+  notes: "Preprint. Smart Technology Investments Research Institute."

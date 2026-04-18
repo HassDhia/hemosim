@@ -4,7 +4,7 @@
 
 **Protocol Document:** `paper/silent_deployment_protocol.tex` (SPIRIT 2013 compliant, 33 checklist items addressed)
 **Version:** 1.0 (draft) — **Status:** IRB pre-submission
-**Proposed Site:** UCSD Health adult ICU (placeholder pending PI confirmation)
+**Proposed Site:** [partner academic medical center] adult ICU (placeholder pending PI confirmation)
 **Target Enrollment:** 200–500 patients, planned 350 | **Study Period:** 6–12 months
 **Primary Venue Target:** *The Lancet Digital Health* or *NEJM AI*
 

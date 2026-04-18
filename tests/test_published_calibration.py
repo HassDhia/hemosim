@@ -41,7 +41,7 @@ class TestBenchmarks:
             # heparin
             "raschke_aptt_6h",
             "hirsh_therapeutic_conc_mid",
-            "nemati_ttr_standard",
+            "wan_aptt_ttr_standard_of_care",
             # warfarin
             "iwpc_mean_maintenance_dose",
             "iwpc_days_to_therapeutic",
@@ -386,13 +386,17 @@ class TestReportRendering:
 
 
 class TestNonRegression:
-    def test_warfarin_pkpd_backward_compatible_defaults(self):
-        """New fittable attributes must default to the v0.1 values so
-        downstream tests and the env baselines do not see a behavior change
-        unless the validation harness explicitly sets them.
+    def test_warfarin_pkpd_defaults_match_fitted_v2_calibration(self):
+        """Defaults are the v2 fitted calibration values (see paper §8 Table~5).
+        The v0.1 priors undershot the Hamberg/IWPC steady-state ceiling; the
+        fitted values land the WT-at-5mg steady-state INR at 2.5 per Hamberg 2007.
         """
         from hemosim.models.warfarin_pkpd import WarfarinPKPD
 
         m = WarfarinPKPD()
-        assert m.vk_inhibition_gain == pytest.approx(0.04)
-        assert m.s_warfarin_potency == pytest.approx(3.0)
+        # v2 fitted values (not v0.1 priors of 0.04 and 3.0)
+        assert m.vk_inhibition_gain == pytest.approx(0.06519)
+        assert m.s_warfarin_potency == pytest.approx(2.474)
+        # Fitted ec50 and hill also match the calibration report
+        assert m.ec50 == pytest.approx(1.106)
+        assert m.hill == pytest.approx(1.650)
