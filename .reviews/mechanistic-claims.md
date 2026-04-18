@@ -40,7 +40,7 @@ assertive, passing test.
 
 ## Claim warfarin_hamberg_pkpd: Hamberg 2007 warfarin PK/PD reproduces IWPC cohort steady state
 
-- **Location (paper):** paper/hemosim.tex:298-427
+- **Location (paper):** paper/hemosim.tex:304-435
 - **Location (code):** src/hemosim/models/warfarin_pkpd.py:27-120
 - **Claim text (verbatim from paper, ≤ 2 sentences):**
 
@@ -61,7 +61,7 @@ assertive, passing test.
 
 ## Claim heparin_raschke_aptt: Raschke/Hirsh nomogram reproduces target aPTT 6h post-bolus
 
-- **Location (paper):** paper/hemosim.tex:309-462
+- **Location (paper):** paper/hemosim.tex:315-470
 - **Location (code):** src/hemosim/models/heparin_pkpd.py:1-180; src/hemosim/agents/baselines.py:62-91
 - **Claim text (verbatim from paper, ≤ 2 sentences):**
 
@@ -82,7 +82,7 @@ assertive, passing test.
 
 ## Claim doac_rely_rocket_aristotle: DOAC event rates reproduce RE-LY / ROCKET-AF / ARISTOTLE within CI (stroke CI miss pre-disclosed)
 
-- **Location (paper):** paper/hemosim.tex:245-481
+- **Location (paper):** paper/hemosim.tex:251-489
 - **Location (code):** src/hemosim/envs/doac_management.py:1-200; results/published_calibration.json
 - **Claim text (verbatim from paper, ≤ 2 sentences):**
 
@@ -103,7 +103,7 @@ assertive, passing test.
 
 ## Claim dic_hockin_mann_cascade: DIC env couples to reduced Hockin-Mann cascade that qualitatively reproduces initiation dynamics
 
-- **Location (paper):** paper/hemosim.tex:63-720
+- **Location (paper):** paper/hemosim.tex:69-784
 - **Location (code):** src/hemosim/models/coagulation.py:1-240; src/hemosim/envs/dic_management.py:1-300
 - **Claim text (verbatim from paper, ≤ 2 sentences):**
 
@@ -124,7 +124,7 @@ assertive, passing test.
 
 ## Claim rosendaal_ttr: TTR metric implements Rosendaal 1993 linear interpolation
 
-- **Location (paper):** paper/hemosim.tex:489-528
+- **Location (paper):** paper/hemosim.tex:497-538
 - **Location (code):** src/hemosim/metrics/clinical.py:100-180
 - **Claim text (verbatim from paper, ≤ 2 sentences):**
 
@@ -145,7 +145,7 @@ assertive, passing test.
 
 ## Claim isth_major_bleed: Major-bleed classification implements Schulman 2005 ISTH definition
 
-- **Location (paper):** paper/hemosim.tex:489-528
+- **Location (paper):** paper/hemosim.tex:497-538
 - **Location (code):** src/hemosim/metrics/clinical.py:184-245
 - **Claim text (verbatim from paper, ≤ 2 sentences):**
 
@@ -166,7 +166,7 @@ assertive, passing test.
 
 ## Claim warkentin_4t_hit: HIT scoring implements Warkentin 2003 / Lo 2006 4T score
 
-- **Location (paper):** paper/hemosim.tex:489-528
+- **Location (paper):** paper/hemosim.tex:497-538
 - **Location (code):** src/hemosim/metrics/clinical.py:316-420
 - **Claim text (verbatim from paper, ≤ 2 sentences):**
 
@@ -187,7 +187,7 @@ assertive, passing test.
 
 ## Claim nemati_dqn_arch: NematiDQN2016Baseline reimplements Nemati 2016 DQN architecture
 
-- **Location (paper):** paper/hemosim.tex:65-180
+- **Location (paper):** paper/hemosim.tex:71-186
 - **Location (code):** src/hemosim/agents/baselines_extended.py:80-160
 - **Claim text (verbatim from paper, ≤ 2 sentences):**
 
@@ -208,7 +208,7 @@ assertive, passing test.
 
 ## Claim env_reward_function_shapes: Warfarin and heparin reward functions match the forms declared in §4 equations
 
-- **Location (paper):** paper/hemosim.tex:208-250
+- **Location (paper):** paper/hemosim.tex:214-256
 - **Location (code):** src/hemosim/envs/warfarin_dosing.py:1-250; src/hemosim/envs/heparin_infusion.py:1-250
 - **Claim text (verbatim from paper, ≤ 2 sentences):**
 
@@ -250,7 +250,7 @@ assertive, passing test.
 
 ## Claim pomdp_lab_masking: POMDP env masks ground-truth labs until TAT elapses
 
-- **Location (paper):** paper/hemosim.tex:335-386
+- **Location (paper):** paper/hemosim.tex:341-392
 - **Location (code):** src/hemosim/envs/pomdp.py:1-250; src/hemosim/envs/heparin_pomdp.py:1-200
 - **Claim text (verbatim from paper, ≤ 2 sentences):**
 

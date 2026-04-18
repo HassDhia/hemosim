@@ -4,6 +4,8 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
+\usepackage[hyphens]{url}
+\usepackage{xurl}
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
 \usepackage{natbib}
 \usepackage{booktabs}
@@ -13,6 +15,10 @@
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
+\Urlmuskip=0mu plus 1mu\relax
+\sloppy
 
 % --- Metadata ---
 \title{\textbf{hemosim}: A Reproducible, Calibrated, Clinically-Safe\\
@@ -171,7 +177,7 @@ hemosim/
     run_published_calibration.py    # Hamberg/IWPC/Raschke/Hirsh fit
     run_mimic_calibration.py        # MIMIC-IV scaffold
     train_nemati_dqn.py             # reimplementation of Nemati 2016
-  tests/                     # 383 unit, integration, integrity-audit, and SR-M tests
+  tests/                     # 383 unit/integration/integrity/SR-M tests
   results/                   # JSON artifacts + EXPECTED_RESULTS.json
   figures/
   paper/                     # This manuscript + silent-deployment protocol
@@ -414,6 +420,7 @@ Warfarin PK/PD parameters are fitted via SciPy's Nelder--Mead optimizer against 
 \centering
 \caption{Warfarin calibration residuals on held-out calibration benchmarks. All three targets fall within 0.004~INR of expected.}
 \label{tab:warfarin_residuals}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}lrrr@{}}
 \toprule
 \textbf{Target} & \textbf{Expected} & \textbf{Observed} & \textbf{Residual} \\
@@ -422,7 +429,8 @@ IWPC mean maintenance dose $\to$ INR \citep{iwpc2009} & 2.500 & 2.504 & $+0.004$
 IWPC days-to-therapeutic \citep{iwpc2009}               & 7.000 & 7.000 & $\phantom{+}0.000$ \\
 Hamberg steady-state INR, WT on 5 mg/day \citep{hamberg2007} & 2.500 & 2.496 & $-0.004$ \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 \subsection{Heparin fit: documented residual against standard-of-care aPTT-in-range}
@@ -449,6 +457,7 @@ Heparin PK/PD parameters are fitted against three targets: Raschke mean aPTT at 
 \centering
 \caption{Heparin calibration residuals. The standard-of-care-aPTT-TTR residual (against a representative standard-of-care target, not a Nemati datum; see text) is the signal that motivates the POMDP reformulation in \S\ref{sec:pomdp}.}
 \label{tab:heparin_residuals}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}lrrr@{}}
 \toprule
 \textbf{Target} & \textbf{Expected} & \textbf{Observed} & \textbf{Residual} \\
@@ -457,7 +466,8 @@ Raschke aPTT at 6h (80 U/kg + 18 U/kg/hr) \citep{raschke1993} & 75.000 s & 75.00
 Hirsh therapeutic plasma level (midpoint) \citep{hirsh2001}   & 0.300 U/mL & 0.300 U/mL & $\phantom{+}0.000$ \\
 Aspirational aPTT-TTR on Raschke (representative target; see text) \citep{wan2008} & 0.550 & 0.375 & $-0.175$ \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 \subsection{DOAC event-rate validation}
@@ -468,6 +478,7 @@ Five hundred simulated episodes per drug (seed~42) are compared against the publ
 \centering
 \caption{\emph{All three DOAC stroke rates fall outside trial 95\% CIs; all three bleed rates are within CI.} Observed stroke rates exceed the upper CI bound for dabigatran (1.43 vs 1.33), rivaroxaban (3.10 vs 2.00), and apixaban (1.64 vs 1.53); bleed rates match RE-LY, ROCKET-AF, and ARISTOTLE across all three drugs. The stroke-event simulator is therefore a Phase~2 re-calibration target against individual-patient MIMIC-IV; the bleed-event simulator does not require the same re-fit. Protocol: 500 episodes per drug, seed~42.}
 \label{tab:doac_validation}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}lrrrrc@{}}
 \toprule
 \textbf{Drug} & \textbf{Stroke obs} & \textbf{Stroke CI} & \textbf{Bleed obs} & \textbf{Bleed CI} & \textbf{Trial} \\
@@ -476,7 +487,8 @@ Dabigatran   & 1.43 & {[0.92, 1.33]} & 3.27 & {[2.80, 3.46]} & RE-LY \citep{conn
 Rivaroxaban  & 3.10 & {[1.45, 2.00]} & 3.92 & {[3.27, 3.96]} & ROCKET-AF \citep{patel2011} \\
 Apixaban     & 1.64 & {[1.05, 1.53]} & 2.25 & {[1.89, 2.40]} & ARISTOTLE \citep{granger2011} \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 \subsection{MIMIC-IV Phase~2 calibration scaffold}
@@ -510,6 +522,7 @@ Following \citet{warkentin2003} and \citet{lo2006}, the 4T score combines Thromb
 \centering
 \caption{Clinical-outcome metrics emitted by every \texttt{hemosim} environment.}
 \label{tab:metrics}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}lp{6cm}l@{}}
 \toprule
 \textbf{Metric} & \textbf{Definition} & \textbf{Source} \\
@@ -520,7 +533,8 @@ Thromboembolic events    & Aggregator (stroke, SE, DVT, PE).        & --- \\
 HIT 4T score             & Warkentin 4T.                            & \citep{warkentin2003,lo2006} \\
 Mortality proxy          & Composite; \emph{flagged as proxy}.       & --- \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 % ============================================================================
@@ -640,7 +654,43 @@ Figure~\ref{fig:pomdp_flow} sketches the observation flow in \texttt{hemosim/Hep
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=0.95\textwidth]{../figures/fig3_pomdp_flow.png}
+  \begin{tikzpicture}[
+    font=\small,
+    node distance=1.6cm and 1.6cm,
+    box/.style={rectangle, rounded corners=3pt, draw, thick, align=center, minimum height=1.0cm, inner sep=6pt},
+    policy/.style={box, fill=blue!12, minimum width=2.6cm},
+    dose/.style={box, fill=blue!6, minimum width=2.6cm},
+    labaction/.style={box, fill=blue!6, minimum width=3.2cm},
+    queue/.style={box, fill=orange!18, minimum width=3.6cm},
+    state/.style={box, fill=red!12, dashed, minimum width=3.2cm},
+    obs/.style={box, fill=purple!14, minimum width=3.4cm},
+    arr/.style={-{Latex[length=2.2mm]}, thick},
+    dashedarr/.style={-{Latex[length=2.2mm]}, thick, dashed}
+  ]
+
+    \node[policy] (policy) {Policy\\$\pi(a_t \mid o_{\leq t}, a_{<t})$};
+
+    \node[dose,       right=2.2cm of policy] (dose)    {Dose action\\(infusion rate)};
+    \node[labaction,  below=0.9cm of dose]   (labact)  {Lab-order action\\(aPTT / anti-Xa / plt)};
+
+    \node[state, right=2.2cm of dose]   (state) {HeparinPKPD\\(true state, hidden)};
+    \node[queue, right=2.2cm of labact] (queue) {LabOrderQueue\\(TAT + CV noise)};
+
+    \node[obs, below=1.0cm of queue] (obs) {Observation:\\returned lab history\\$(\ell, v_{\text{noisy}}, t_{\text{ord}}, t_{\text{ret}}, \sigma_\ell)$};
+
+    \draw[arr] (policy.east |- dose.west)   -- (dose.west);
+    \draw[arr] (policy.east |- labact.west) -- (labact.west);
+
+    \draw[arr] (dose.east)   -- (state.west);
+    \draw[arr] (labact.east) -- (queue.west);
+
+    \draw[dashedarr] (state.south) -- node[right, font=\scriptsize]{truth at $t_{\text{ord}}$} (queue.north);
+
+    \draw[arr] (queue.south) -- node[right, font=\scriptsize]{after $\text{TAT}_\ell$} (obs.north);
+
+    \draw[arr] (obs.west) -- ++(-2.2,0) |- (policy.south);
+
+  \end{tikzpicture}
   \caption{\emph{The POMDP formulation makes lab ordering an action with TAT and analytical noise; the policy never sees ground-truth state.} \texttt{hemosim/HeparinInfusion-POMDP-v0} observation flow: the policy produces two action channels --- a dose action applied directly and a lab-order action queued for delayed noisy return. Ground truth at order time is captured and, after the lab's turnaround time elapses, returned with analytical variation (aPTT 45~min / CV 8\%, anti-Xa 180~min / CV 12\%, platelets 45~min / CV 5\%, cited to Bowen 2016 and Lippi 2012). This is the structural change that directly addresses the v0.1 pharmacist critique that prior oracle-lab environments do not reflect ICU measurement reality.}
   \label{fig:pomdp_flow}
 \end{figure}

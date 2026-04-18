@@ -4,6 +4,8 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
+\usepackage[hyphens]{url}
+\usepackage{xurl}
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
 \usepackage[numbers]{natbib}
 \usepackage{booktabs}
@@ -14,6 +16,8 @@
 \usepackage{xcolor}
 \usepackage{longtable}
 \usepackage{tabularx}
+\Urlmuskip=0mu plus 1mu\relax
+\sloppy
 
 % --- Metadata ---
 \title{\textbf{Silent Deployment Observational Study of a Reinforcement-Learning-Derived Heparin Dosing Policy in Adult Intensive Care:}\\
@@ -24,7 +28,9 @@ A SPIRIT 2013-Compliant Clinical Trial Protocol}
   Smart Technology Investments Research Institute\\
   \texttt{hass@smarttechinvest.com}\\
   \\
-  Proposed Partner Site: \textcolor{red}{[PLACEHOLDER --- partner academic medical center adult ICU, to be named after partner confirmation]}
+  Proposed Partner Site: \textcolor{red}{[PLACEHOLDER ---}\\
+  \textcolor{red}{partner academic medical center adult ICU,}\\
+  \textcolor{red}{to be named after partner confirmation]}
 }
 \date{Protocol Version 1.0 --- Draft Date: April 2026}
 
@@ -32,15 +38,18 @@ A SPIRIT 2013-Compliant Clinical Trial Protocol}
 
 \maketitle
 
-\begin{center}
-\fbox{\parbox{0.85\textwidth}{
-\textbf{Protocol Status:} Draft for IRB pre-submission review.\\
-\textbf{Protocol Identifier:} \textcolor{red}{[PLACEHOLDER --- partner site IRB / HRPP PROTOCOL \#]}\\
-\textbf{ClinicalTrials.gov Identifier:} \textcolor{red}{[PLACEHOLDER --- NCT\#, to be assigned upon registration prior to first patient enrollment]}\\
-\textbf{Sponsor / Funding:} \textcolor{red}{[PLACEHOLDER --- e.g., NIH R01 / Foundation Grant / Departmental]}\\
+\noindent\fbox{\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}
+\sloppy
+\textbf{Protocol Status:} Draft for IRB pre-submission review.
+
+\textbf{Protocol Identifier:} \textcolor{red}{[PLACEHOLDER --- partner site IRB / HRPP PROTOCOL \#]}
+
+\textbf{ClinicalTrials.gov Identifier:} \textcolor{red}{[PLACEHOLDER --- NCT\#, assigned upon registration prior to first patient enrollment]}
+
+\textbf{Sponsor / Funding:} \textcolor{red}{[PLACEHOLDER --- e.g., NIH R01 / Foundation Grant / Departmental]}
+
 \textbf{Regulatory Status:} Non-interventional, observational, silent deployment. No modification to patient care. IRB approval with waiver of individual informed consent requested under 45 CFR 46.116(f) (minimal risk, waiver criteria met) and aligned with 21 CFR Part 50 where applicable.
-}}
-\end{center}
+\end{minipage}}
 
 \vspace{1em}
 \tableofcontents
