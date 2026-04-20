@@ -89,7 +89,7 @@ def main() -> int:
         flush=True,
     )
 
-    print("[1/3] Fitting HeparinPKPD against Raschke/Hirsh/Nemati ...", flush=True)
+    print("[1/3] Fitting HeparinPKPD against Raschke/Hirsh/Wan ...", flush=True)
     heparin = fit_heparin_pkpd(
         benchmarks=BENCHMARKS, seed=args.seed, max_iter=args.heparin_iter
     )

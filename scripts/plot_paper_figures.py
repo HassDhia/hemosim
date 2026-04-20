@@ -159,7 +159,7 @@ def fig2_calibration_residuals() -> Path:
         label = {
             "raschke_aptt_6h":            "Raschke\naPTT 6h",
             "hirsh_therapeutic_conc_mid": "Hirsh\nconc",
-            "nemati_ttr_standard":        "Nemati\nTTR",
+            "wan_aptt_ttr_standard_of_care": "Wan\naPTT-TTR",
         }.get(r["key"], r["key"])
         rows.append((label, r["expected"], r["observed"], "Heparin"))
 

@@ -2,7 +2,7 @@
 
 Modules:
     published_calibration: Fit PK/PD parameters against published clinical
-        trial summary statistics (Raschke 1993, Hirsh 2001, Nemati 2016,
+        trial summary statistics (Raschke 1993, Hirsh 2001, Wan 2008,
         IWPC 2009, Hamberg 2007, RE-LY, ROCKET-AF, ARISTOTLE).
 
     mimic_calibration: (scaffold — ISC-7) individual-patient-level fitting

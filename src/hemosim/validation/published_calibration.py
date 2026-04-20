@@ -29,6 +29,14 @@ Heparin (aPTT / concentration response):
       64S-94S. doi:10.1378/chest.119.1_suppl.64s
       Target: therapeutic aPTT corresponds to heparin plasma levels
       0.2-0.4 U/mL (midpoint 0.3 U/mL).
+    - Wan Y, Heneghan C, Perera R, Roberts N, Hollowell J, Glasziou P,
+      Bankhead C, Xu Y. Anticoagulation control and prediction of adverse
+      events in patients with atrial fibrillation: a systematic review.
+      Circ Cardiovasc Qual Outcomes. 2008;1(2):84-91.
+      doi:10.1161/CIRCOUTCOMES.108.796185
+      (Source of the aPTT-TTR = 0.55 standard-of-care representative target.
+      Nemati 2016, below, is a separate citation used only for the DQN
+      architecture reimplementation, NOT for the TTR target.)
     - Nemati S, Ghassemi MM, Clifford GD. Optimal medication dosing from
       suboptimal clinical examples: A deep reinforcement learning approach.
       Conf Proc IEEE Eng Med Biol Soc. 2016;2016:2978-2981.
@@ -73,9 +81,10 @@ Deliverables
 - `BENCHMARKS`: dict of all benchmarks indexed by a stable string key.
 - `fit_heparin_pkpd(benchmarks, seed=42) -> FitResult`: scipy.optimize
   Nelder-Mead over (vmax, km, aptt_alpha, aptt_c_ref) minimizing SSE of
-  Raschke 6h aPTT, Hirsh therapeutic concentration midpoint, and an
-  implied surrogate for Nemati TTR (fraction of a simulated 48h trajectory
-  in 60-100 s under the standard Raschke nomogram).
+  Raschke 6h aPTT, Hirsh therapeutic concentration midpoint, and the
+  Wan 2008 standard-of-care aPTT-TTR representative target (fraction of
+  a simulated 48h trajectory in 60-100 s under the standard Raschke
+  nomogram).
 - `fit_warfarin_pkpd(benchmarks, seed=42) -> FitResult`: same pattern for
   (ec50, vkorc1_factor_base, age_exponent) over IWPC mean-dose fixed
   point and the Hamberg aged-65 steady-state target.
@@ -204,9 +213,13 @@ def _build_benchmarks() -> dict[str, PublishedBenchmark]:
                 "doi:10.1161/CIRCOUTCOMES.108.796185"
             ),
             notes=(
-                "Approximate TTR at steady state on the physician-applied "
-                "Raschke nomogram, reported as the baseline that the DQN "
-                "policy improved upon."
+                "Standard-of-care aPTT time-in-therapeutic-range "
+                "representative benchmark drawn from the Wan 2008 "
+                "antithrombotic-stewardship systematic review; used as a "
+                "cohort-level residual target, not a direct trial datum. "
+                "Nemati 2016 does NOT report a TTR number; its primary "
+                "outcome is accumulated reward under a sigmoid-shaped "
+                "aPTT function."
             ),
         ),
         # ----- Warfarin -------------------------------------------------
@@ -489,8 +502,8 @@ def _simulate_raschke(
         Hirsh therapeutic-concentration surrogate.
     ttr_48h : float
         Fraction of the 0-48h hourly trajectory with aPTT in 60-100 s —
-        our surrogate for Nemati's TTR target (0.55) on the standard
-        Raschke nomogram.
+        our surrogate for the Wan 2008 standard-of-care aPTT-TTR
+        representative target (0.55) on the standard Raschke nomogram.
     """
     model = HeparinPKPD(
         weight=_RASCHKE_WEIGHT_KG,
@@ -530,8 +543,9 @@ def _simulate_raschke(
     conc_6h = model2.get_concentration()
 
     # TTR surrogate = fraction of the first 24 hours (post-bolus, nomogram-
-    # driven phase) with aPTT in 60-100s. This matches how Nemati 2016
-    # measured TTR over the early heparin course in their MIMIC-II cohort.
+    # driven phase) with aPTT in 60-100s. Cohort-level benchmark is the
+    # Wan 2008 standard-of-care representative target; this surrogate is
+    # the cleanest way to compute it from a simulated trajectory.
     window = np.asarray(aptt_trajectory[:_RASCHKE_TTR_DURATION_H])
     in_range = (window >= _RASCHKE_TTR_LOW) & (window <= _RASCHKE_TTR_HIGH)
     ttr = float(np.mean(in_range)) if window.size else 0.0
@@ -581,7 +595,7 @@ def fit_heparin_pkpd(
     seed: int = 42,
     max_iter: int = 200,
 ) -> FitResult:
-    """Fit HeparinPKPD parameters against Raschke/Hirsh/Nemati benchmarks.
+    """Fit HeparinPKPD parameters against Raschke/Hirsh/Wan benchmarks.
 
     Parameters
     ----------

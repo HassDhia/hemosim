@@ -78,16 +78,6 @@
       "units": "mg/day",
       "value": 5.2
     },
-    "wan_aptt_ttr_standard_of_care": {
-      "ci": null,
-      "citation": "Wan Y, Heneghan C, Perera R, Roberts N, Hollowell J, Glasziou P, Bankhead C, Xu Y. Anticoagulation control and prediction of adverse events in patients with atrial fibrillation: a systematic review. Circ Cardiovasc Qual Outcomes. 2008;1(2):84-91. doi:10.1161/CIRCOUTCOMES.108.796185",
-      "endpoint": "aPTT time-in-therapeutic-range target from antithrombotic-stewardship systematic review",
-      "key": "wan_aptt_ttr_standard_of_care",
-      "notes": "Standard-of-care aPTT time-in-therapeutic-range target drawn from antithrombotic-stewardship systematic review; used as a heparin-fit residual benchmark.",
-      "trial": "Wan 2008 (Circulation)",
-      "units": "fraction",
-      "value": 0.55
-    },
     "raschke_aptt_6h": {
       "ci": [
         60.0,
@@ -152,10 +142,20 @@
       "trial": "ROCKET-AF 2011 (NEJM)",
       "units": "%/yr",
       "value": 1.7
+    },
+    "wan_aptt_ttr_standard_of_care": {
+      "ci": null,
+      "citation": "Wan Y, Heneghan C, Perera R, Roberts N, Hollowell J, Glasziou P, Bankhead C, Xu Y. Anticoagulation control and prediction of adverse events in patients with atrial fibrillation: a systematic review. Circ Cardiovasc Qual Outcomes. 2008;1(2):84-91. doi:10.1161/CIRCOUTCOMES.108.796185",
+      "endpoint": "aPTT time-in-therapeutic-range target from antithrombotic-stewardship systematic review",
+      "key": "wan_aptt_ttr_standard_of_care",
+      "notes": "Standard-of-care aPTT time-in-therapeutic-range representative benchmark drawn from the Wan 2008 antithrombotic-stewardship systematic review; used as a cohort-level residual target, not a direct trial datum. Nemati 2016 does NOT report a TTR number; its primary outcome is accumulated reward under a sigmoid-shaped aPTT function.",
+      "trial": "Wan 2008 (Circulation)",
+      "units": "fraction",
+      "value": 0.55
     }
   },
   "cli_args": {
-    "episodes": 500,
+    "episodes": 1000,
     "heparin_iter": 600,
     "seed": 42,
     "warfarin_iter": 800
@@ -163,9 +163,9 @@
   "doac_validation": {
     "drugs": {
       "apixaban": {
-        "bleed_events": 11,
-        "bleed_rate_per_100py": 2.2492997198879547,
-        "bleed_residual": 0.11929971988795485,
+        "bleed_events": 21,
+        "bleed_rate_per_100py": 2.1612248350532903,
+        "bleed_residual": 0.031224835053290434,
         "bleed_within_ci": true,
         "ci_bleed": [
           1.89,
@@ -179,16 +179,16 @@
         "citation_stroke": "Granger CB, Alexander JH, McMurray JJV, et al. Apixaban versus warfarin in patients with atrial fibrillation. N Engl J Med. 2011;365(11):981-992. doi:10.1056/NEJMoa1107039",
         "expected_bleed": 2.13,
         "expected_stroke": 1.27,
-        "patient_years": 489.041095890411,
-        "stroke_events": 8,
-        "stroke_rate_per_100py": 1.6358543417366946,
-        "stroke_residual": 0.3658543417366946,
+        "patient_years": 971.6712328767123,
+        "stroke_events": 26,
+        "stroke_rate_per_100py": 2.6758021767326454,
+        "stroke_residual": 1.4058021767326454,
         "stroke_within_ci": false
       },
       "dabigatran": {
-        "bleed_events": 16,
-        "bleed_rate_per_100py": 3.266767354701572,
-        "bleed_residual": 0.156767354701572,
+        "bleed_events": 30,
+        "bleed_rate_per_100py": 3.084854631507776,
+        "bleed_residual": -0.02514536849222404,
         "bleed_within_ci": true,
         "ci_bleed": [
           2.8,
@@ -202,16 +202,16 @@
         "citation_stroke": "Connolly SJ, Ezekowitz MD, Yusuf S, et al. Dabigatran versus warfarin in patients with atrial fibrillation. N Engl J Med. 2009;361(12):1139-1151. doi:10.1056/NEJMoa0905561",
         "expected_bleed": 3.11,
         "expected_stroke": 1.11,
-        "patient_years": 489.7808219178082,
-        "stroke_events": 7,
-        "stroke_rate_per_100py": 1.4292107176819377,
-        "stroke_residual": 0.31921071768193765,
+        "patient_years": 972.4931506849315,
+        "stroke_events": 22,
+        "stroke_rate_per_100py": 2.262226729772369,
+        "stroke_residual": 1.1522267297723687,
         "stroke_within_ci": false
       },
       "rivaroxaban": {
-        "bleed_events": 19,
-        "bleed_rate_per_100py": 3.922067639407307,
-        "bleed_residual": 0.32206763940730676,
+        "bleed_events": 36,
+        "bleed_rate_per_100py": 3.738796414852753,
+        "bleed_residual": 0.13879641485275274,
         "bleed_within_ci": true,
         "ci_bleed": [
           3.27,
@@ -225,14 +225,14 @@
         "citation_stroke": "Patel MR, Mahaffey KW, Garg J, et al. Rivaroxaban versus warfarin in nonvalvular atrial fibrillation. N Engl J Med. 2011;365(10):883-891. doi:10.1056/NEJMoa1009638",
         "expected_bleed": 3.6,
         "expected_stroke": 1.7,
-        "patient_years": 484.43835616438355,
-        "stroke_events": 15,
-        "stroke_rate_per_100py": 3.0963691890057685,
-        "stroke_residual": 1.3963691890057686,
+        "patient_years": 962.8767123287671,
+        "stroke_events": 39,
+        "stroke_rate_per_100py": 4.050362782757149,
+        "stroke_residual": 2.3503627827571485,
         "stroke_within_ci": false
       }
     },
-    "n_episodes_per_drug": 500,
+    "n_episodes_per_drug": 1000,
     "seed": 42
   },
   "heparin_fit": {
