@@ -238,9 +238,9 @@ def fig2_calibration_residuals() -> Path:
         fontsize=10,
     )
 
-    # Annotate the Nemati TTR outlier
+    # Annotate the Wan aPTT-TTR outlier
     for i, (label, r) in enumerate(zip(labels, residuals)):
-        if "Nemati" in label:
+        if "aPTT-TTR" in label:
             ax.annotate(
                 f"{r:+.2f}",
                 xy=(i, r),
