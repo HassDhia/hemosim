@@ -74,15 +74,15 @@ This report is produced by `scripts/run_published_calibration.py` and summarizes
 
 ### DOAC event-rate validation
 
-- Episodes per drug: 1000 (seed: 42)
+- Episodes per drug: 500 (seed: 42)
 
 | Drug | Stroke obs (%/yr) | Stroke trial (CI) | Bleed obs (%/yr) | Bleed trial (CI) | Trial |
 |------|-------------------|--------------------|------------------|-------------------|-------|
-| dabigatran | 2.26 | 1.11 [0.92-1.33] | 3.08 | 3.11 [2.80-3.46] | RE-LY |
-| rivaroxaban | 4.05 | 1.70 [1.45-2.00] | 3.74 | 3.60 [3.27-3.96] | ROCKET-AF |
-| apixaban | 2.68 | 1.27 [1.05-1.53] | 2.16 | 2.13 [1.89-2.40] | ARISTOTLE |
+| dabigatran | 1.43 | 1.11 [0.92-1.33] | 3.27 | 3.11 [2.80-3.46] | RE-LY |
+| rivaroxaban | 3.10 | 1.70 [1.45-2.00] | 3.92 | 3.60 [3.27-3.96] | ROCKET-AF |
+| apixaban | 1.64 | 1.27 [1.05-1.53] | 2.25 | 2.13 [1.89-2.40] | ARISTOTLE |
 
 
 ## Fingerprint
 
-`sha256(published_calibration.json)` = `c7616e68e30c5124107e3b47fb77f5f668937e7d768d36413909959953f76a8b`
+`sha256(published_calibration.json)` = `73a865db2d400bc4f69da57820a8978e8895228d20bb2d884917cbc234830627`
