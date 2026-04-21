@@ -1,19 +1,17 @@
-# Mechanistic Claim Registry — hemosim v0.2.2
+# Mechanistic Claim Registry
 
 Every mechanistic scientific claim in `paper/hemosim.tex` that asserts a
-mechanism, reproduction, or architecture equivalence is registered here
-per SR-M1. Each claim has a primary-source numeric target and a falsification
-test in `tests/` that runs the claim under the artifact's default
-initialization.
+mechanism, reproduction, or architecture equivalence is registered here with
+a primary-source numeric target and a falsification test in `tests/` that
+runs the claim under the artifact's default initialization.
 
 **Registry scope:** equation claims, mechanism claims ("we model / simulate /
 reproduce", "mechanistic coupling"), reproduction claims, architecture claims
 (reimplementations). Scope/methodology/infrastructure claims are excluded.
 
-**Origin:** authored 2026-04-18 from the v0.2.1 Science-Skill Report
-(T1.1–T1.13) and the paper's §3/§5/§7/§8/§9/§11 mechanism passages. This
-registry is the SR-M1 artifact; SR-M2/M3 enforce that each entry has a live,
-assertive, passing test.
+Each entry records: paper location, code location, verbatim claim text,
+primary source and numeric target, and the path to the falsification test
+that enforces it.
 
 ---
 

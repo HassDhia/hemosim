@@ -49,12 +49,12 @@ def test_srm_abstract_meta_all_subclaim_tests_pass():
 
 
 def test_srm_abstract_meta_registry_exists():
-    """Registry file from Phase A is present and non-empty.
+    """Mechanistic-claim registry is present and non-empty.
 
     Asserts registry length > 100 lines (registry has 12 claims × ~20
     lines/claim = ~240 lines).
     """
-    registry = Path(__file__).parent.parent / ".reviews" / "mechanistic-claims.md"
+    registry = Path(__file__).parent.parent / "docs" / "mechanistic-claims.md"
     assert registry.is_file(), f"Mechanistic-claims registry missing: {registry}"
     lines = registry.read_text().splitlines()
     assert len(lines) >= 100, (

@@ -48,8 +48,10 @@ paper/*.fdb_latexmk
 paper/*.fls
 paper/*.toc
 
-# Gate-runner ephemeral output
-.reviews/gate-report-*.json
+# Internal review / feedback artifacts (not shipped)
+.reviews/
+feedback/
+.research-project.json
 
 # Project-specific
 .claude/
