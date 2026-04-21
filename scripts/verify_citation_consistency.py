@@ -50,7 +50,6 @@ ARTIFACT_FILES = [
     REPO / "paper" / "protocol_summary.md",
     REPO / "results" / "calibration_report.md",
     REPO / "README.md",
-    REPO / "PATHWAY.md",
     REPO / "CHANGELOG.md",
 ]
 

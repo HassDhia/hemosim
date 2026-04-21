@@ -8,7 +8,6 @@ SR-M gate pass. Registered every mechanistic scientific claim in `paper/hemosim.
 
 ### Added
 - **SR-M gate family (Scientific Rigor — Mechanistic).** 12-claim mechanistic-claim registry at `.reviews/mechanistic-claims.md`; 29 new SR-M falsification tests in `tests/test_srm_*.py`, one file per claim, each using the default artifact initialization and asserting against a primary-source numeric range. SR-M runs pre-Council via `bun Tools/research-verify-gates.ts --phase review-srm` and is enforced as an AppliedResearch non-negotiable. Origin: v0.2.1 Science-Skill Report T1.5 (Nemati→Wan drift) + T1.10 (cascade thrombin activation under default init).
-- **PATHWAY.md** at repo root — canonical 5-phase clinical translation pathway declaration, referenced from PreFlight and attached to outreach. Matches paper §14 Discussion narrative.
 - **v0.2.2 review certificate** at `.reviews/v0.2.2-review-certificate.md`, APPROVED FOR PUBLICATION with a `## SR-M gate results` section listing all 12 claims and their test status.
 - **v0.2.2 preflight certificate** at `.reviews/v0.2.2-preflight-certificate.md`, OUTREACH GATE: OPEN.
 
